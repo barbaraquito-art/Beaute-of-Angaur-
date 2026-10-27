@@ -79,7 +79,7 @@ footer{border-top:1px solid var(--line);padding:24px 0 60px;font-size:13px}
   <div class="hero">
     <div class="eyebrow">Your website</div>
     <h1>Edit your pages, photos and videos</h1>
-    <p>Open any page in edit mode, change text, photos and videos, then download the page and upload it to GitHub. Visitors never see the edit buttons. They only appear on devices that have opened this editor.</p>
+    <p>Open any page in edit mode, change text, photos and videos, then click <b>Publish to website</b>. Your change goes live in about a minute. Visitors never see the edit buttons. They only appear on devices that have opened this editor.</p>
     <div class="links">
       <div class="card">
         <h3>Live website</h3>
@@ -87,9 +87,16 @@ footer{border-top:1px solid var(--line);padding:24px 0 60px;font-size:13px}
         <a class="pill green sm" href="index.html" target="_blank" rel="noopener">Open website</a>
       </div>
       <div class="card">
-        <h3>Publish your changes</h3>
-        <a class="url" href="https://github.com/barbaraquito-art/Beaute-of-Angaur-/upload/main" target="_blank" rel="noopener">github.com/barbaraquito-art/Beaute-of-Angaur-/upload/main</a>
-        <a class="pill green sm" href="https://github.com/barbaraquito-art/Beaute-of-Angaur-/upload/main" target="_blank" rel="noopener">Upload files to GitHub</a>
+        <h3>Publishing</h3>
+        <p style="margin:6px 0 14px;font-size:14px" id="pubState">Checking…</p>
+        <button type="button" class="pill green sm" id="pubForget" hidden>Disconnect this device</button>
+        <a class="pill ghost sm" href="https://github.com/barbaraquito-art/Beaute-of-Angaur-/commits/main" target="_blank" rel="noopener">Change history</a>
+      </div>
+      <div class="card">
+        <h3>Visitor permits</h3>
+        <p style="margin:6px 0 14px;font-size:14px" id="permitState">Checking…</p>
+        <a class="pill green sm" href="permit.html" target="_blank" rel="noopener">Application form</a>
+        <a class="pill ghost sm" href="permit-status.html" target="_blank" rel="noopener">Status page</a>
       </div>
     </div>
   </div>
@@ -118,12 +125,12 @@ footer{border-top:1px solid var(--line);padding:24px 0 60px;font-size:13px}
     <div class="eyebrow">How to publish</div>
     <h2 id="h-how">Make your changes live</h2>
     <ol class="steps">
-      <li>Tap <b>Edit</b> next to a page above.</li>
-      <li>Tap any text to type. Tap a photo to paste a link or upload one. On the Gallery page, use <b>+ Add photo</b> and <b>+ Add video</b>.</li>
-      <li>Tap <b>Done</b>, then <b>Download page</b>. The file keeps the page's name, for example <b>gallery.html</b>.</li>
-      <li>Open <a href="https://github.com/barbaraquito-art/Beaute-of-Angaur-/upload/main" target="_blank" rel="noopener">Upload files to GitHub</a>, choose that file and tap <b>Commit changes</b>. The live site updates in 1–2 minutes.</li>
+      <li>Click <b>Edit</b> next to a page above.</li>
+      <li>Click any text to type. Click a photo to change, resize or remove it. Page headers have a <b>Change background photo</b> button. On the Gallery page, use <b>+ Add photo</b> and <b>+ Add video</b>.</li>
+      <li>Click <b>Publish to website</b> on the bar at the bottom. The first time, connect your GitHub access key (the editor shows you how).</li>
+      <li>Wait for <b>"Published. Your change is live"</b>. That's it. No downloading or uploading.</li>
     </ol>
-    <p class="note">Before uploading, check the file name has no extra "(1)" or "- Copy". If it does, rename it first, or GitHub adds it as a new file instead of replacing the page.</p>
+    <p class="note">Photos you upload from your device are saved to the website's own <b>images</b> folder when you publish, so pages stay fast.</p>
   </section>
 </main>
 
@@ -142,7 +149,7 @@ footer{border-top:1px solid var(--line);padding:24px 0 60px;font-size:13px}
   var PAGES = [
     ['index.html', 'Home'], ['discover.html', 'Discover'], ['heritage.html', 'Heritage'],
     ['sites.html', 'Sites'], ['governance.html', 'Governance'], ['gallery.html', 'Gallery'],
-    ['contact.html', 'Contact'], ['visit.html', 'Plan Your Visit']
+    ['contact.html', 'Contact'], ['visit.html', 'Plan Your Visit'], ['permit.html', 'Visitor Permit']
   ];
   var base = location.href.replace(/[^/]*([?#].*)?$/, '');
   var live = document.getElementById('liveUrl');
@@ -261,6 +268,27 @@ footer{border-top:1px solid var(--line);padding:24px 0 60px;font-size:13px}
     draw();
     if (!items.length) count.textContent = 'No photos found. Open this page from your live website.';
   });
+
+  var pubState = document.getElementById('pubState'), pubForget = document.getElementById('pubForget');
+  var tok = ''; try { tok = localStorage.getItem('anguar-gh-token') || ''; } catch (e) {}
+  if (!tok) pubState.textContent = 'Not connected on this device yet. You will be asked to connect the first time you click Publish to website.';
+  else fetch('https://api.github.com/repos/barbaraquito-art/Beaute-of-Angaur-', { headers: { Authorization: 'Bearer ' + tok, Accept: 'application/vnd.github+json' } })
+    .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+    .then(function (j) { pubState.textContent = j.permissions && j.permissions.push ? 'Connected. Publish to website saves straight to your live site.' : 'Connected, but this key cannot change the site. Disconnect and connect again with a key that has Contents: Read and write.'; pubForget.hidden = false; })
+    .catch(function () { pubState.textContent = 'The saved access key no longer works. Disconnect and connect again.'; pubForget.hidden = false; });
+  pubForget.addEventListener('click', function () { try { localStorage.removeItem('anguar-gh-token'); } catch (e) {} pubState.textContent = 'Disconnected on this device.'; pubForget.hidden = true; });
+
+  var permitState = document.getElementById('permitState');
+  var s1 = document.createElement('script'); s1.src = 'permit-config.js?v=' + Date.now();
+  s1.onload = function () {
+    var api = (window.ANGAUR_PERMIT_API || '').trim();
+    if (!api) { permitState.textContent = 'The form is on the site, but online applications are switched off until the permit backend is connected. Visitors are asked to contact the office.'; return; }
+    fetch(api + (api.indexOf('?') >= 0 ? '&' : '?') + 'action=ping').then(function (r) { return r.json(); })
+      .then(function (j) { permitState.textContent = j && j.ok ? 'Online applications are on. New applications go to your Google Sheet.' : 'The permit backend did not answer correctly.'; })
+      .catch(function () { permitState.textContent = 'The permit backend could not be reached.'; });
+  };
+  s1.onerror = function () { permitState.textContent = 'Permit settings file not found.'; };
+  document.head.appendChild(s1);
 
   document.getElementById('forget').addEventListener('click', function () {
     try { localStorage.removeItem('anguar-owner'); } catch (e) {}

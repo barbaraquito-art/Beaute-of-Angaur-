@@ -1,6 +1,11 @@
 # Beauté of Anguar
 
-A copy of https://beaute-of-anguar.lovable.app with the same design, text and pages, made to run on GitHub Pages.
+Static website for Angaur State, Republic of Palau, served by GitHub Pages from the `main` branch (no build step).
+
+Live site: https://barbaraquito-art.github.io/Beaute-of-Angaur-/
+Editor: https://barbaraquito-art.github.io/Beaute-of-Angaur-/editor.html
+
+## Pages
 
 | File | Page |
 |---|---|
@@ -9,26 +14,29 @@ A copy of https://beaute-of-anguar.lovable.app with the same design, text and pa
 | heritage.html | Heritage |
 | sites.html | Sites |
 | governance.html | Governance |
-| gallery.html | Gallery |
+| gallery.html | Gallery (photos and videos) |
 | contact.html | Contact |
 | visit.html | Plan Your Visit |
-| styles.css | Design (colors, fonts, layout) |
-| site.js | Mobile menu, scroll animations, Discover filter, editing |
-| angaur-state.html | Old address. Sends visitors to the home page |
-| editor.html | Your editor: edit links for every page, photo and video library with downloads |
+| permit.html | Visitor permit application |
+| permit-status.html | Application receipt, status and approved permit card |
+| editor.html | Owner's editor (edit links, media library, publishing and permit status) |
+| angaur-state.html | Old address, forwards to the home page |
 
-## Editing a page
+Shared files: `styles.css` (design), `site.js` (menu, animations, filter, editor and publishing), `permit.js` and `permit-config.js` (permit form and status), `angaur-seal.jpg` (seal on the permit card), `permit-backend.gs` (Google Apps Script backend, kept here for reference).
 
-Start at **editor.html** on your live site. It lists every page with an Edit button.
+## Editing and publishing
 
-1. Open the editor and tap **Edit** next to a page.
-2. Editing switches on. The edit buttons only show on devices that have opened the editor.
-3. Tap any text to type. Tap a photo to paste a new link or upload one. On the Gallery page, use **+ Add photo** and **+ Add video** (YouTube, Google Drive, Facebook, Vimeo or a short clip). Double-tap a button to change its link.
-4. Tap **Download page**. You get a file with the same name, for example `discover.html`.
-5. In this repository, tap **Add file → Upload files**, upload that file, and tap **Commit changes**.
+1. Open the editor and click **Edit** next to a page.
+2. Click text to type. Click a photo to change, resize or remove it. Headers have **Change background photo**.
+3. Click **Publish to website**. The first time, paste a fine-grained GitHub access key for this repository with **Contents: Read and write**. The key stays on that device only.
+4. The editor commits the page to `main`, saves any uploaded photos in `images/uploads/`, and confirms when the live site shows the change.
 
-Edits show only in your browser until you upload the downloaded file.
+## Visitor permits
 
-## Photos
+Applications are stored privately in the State office's Google Sheet through `permit-backend.gs` (Google Apps Script web app). Submitting an application only creates a **pending receipt**. A permit card appears only after staff approve the row with **Angaur Permits → Approve selected application**, which assigns a permit number and emails the applicant.
 
-Photos still load from the Lovable site and Unsplash. If the Lovable site is ever removed, replace them using Edit page.
+Until the backend's web app address is placed in `permit-config.js`, the form tells visitors to contact the office instead of submitting.
+
+## Photo credits
+
+Sites, Governance and Plan Your Visit headers use public-domain photos from Wikimedia Commons (credited on each page). Other photos are the site owner's.

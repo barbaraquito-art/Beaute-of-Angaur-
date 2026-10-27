@@ -155,6 +155,7 @@
     '<button type="button" data-a="edit">Edit page</button>' +
     '<button type="button" data-a="undo" hidden aria-label="Undo">↶ Undo</button>' +
     '<button type="button" data-a="redo" hidden aria-label="Redo">↷ Redo</button>' +
+    '<button type="button" data-a="publish" hidden>Publish to website</button>' +
     '<button type="button" data-a="save" hidden>Download page</button>' +
     '<button type="button" data-a="reset" hidden>Start over</button>' +
     '<span data-msg></span>';
@@ -197,43 +198,49 @@
     setTimeout(function () { mUrl.focus(); }, 30);
   }
   function closeModal() { modal.classList.remove('on'); mTarget = null; mData = null; }
-  mUrl.addEventListener('input', function () { mData = null; mErr.hidden = true; if (mKind === 'img' && mUrl.value.trim()) { mPrev.src = mUrl.value.trim(); mPrev.hidden = false; } });
-  modal.querySelector('[data-cancel]').addEventListener('click', function () { if (mDone) mDone(false); closeModal(); });
-  modal.addEventListener('click', function (e) { if (e.target === modal) { if (mDone) mDone(false); closeModal(); } });
-  modal.querySelector('[data-upload]').addEventListener('click', function () {
-    var f = document.createElement('input'); f.type = 'file'; f.accept = mKind === 'img' ? 'image/*' : 'video/*';
-    f.onchange = function () {
-      var file = f.files[0]; if (!file) return;
-      if (mKind === 'video') {
-        if (file.size > 20 * 1024 * 1024) { mErr.textContent = 'That clip is over 20 MB. Put it on YouTube or Google Drive and paste the link instead.'; mErr.hidden = false; return; }
-        var rv = new FileReader(); rv.onload = function () { mData = rv.result; mUrl.value = ''; mUrl.placeholder = file.name + ' is ready'; mErr.hidden = true; }; rv.readAsDataURL(file);
-        return;
-      }
-      var r = new FileReader();
-      r.onload = function () {
-        var im = new Image();
-        im.onload = function () {
-          var max = 1800, s = Math.min(1, max / Math.max(im.naturalWidth, im.naturalHeight));
-          var cv = document.createElement('canvas'); cv.width = Math.round(im.naturalWidth * s); cv.height = Math.round(im.naturalHeight * s);
-          cv.getContext('2d').drawImage(im, 0, 0, cv.width, cv.height);
-          mData = cv.toDataURL('image/jpeg', 0.85); mUrl.value = ''; mUrl.placeholder = file.name + ' is ready'; mPrev.src = mData; mPrev.hidden = false; mErr.hidden = true;
+  function wireModal() {
+    mUrl.addEventListener('input', function () { mData = null; mErr.hidden = true; if (mKind === 'img' && mUrl.value.trim()) { mPrev.src = mUrl.value.trim(); mPrev.hidden = false; } });
+    modal.querySelector('[data-cancel]').addEventListener('click', function () { if (mDone) mDone(false); closeModal(); });
+    modal.querySelector('[data-upload]').addEventListener('click', function () {
+      var f = document.createElement('input'); f.type = 'file'; f.accept = mKind === 'img' ? 'image/*' : 'video/*';
+      f.onchange = function () {
+        var file = f.files[0]; if (!file) return;
+        if (mKind === 'video') {
+          if (file.size > 20 * 1024 * 1024) { mErr.textContent = 'That clip is over 20 MB. Put it on YouTube or Google Drive and paste the link instead.'; mErr.hidden = false; return; }
+          var rv = new FileReader(); rv.onload = function () { mData = rv.result; mUrl.value = ''; mUrl.placeholder = file.name + ' is ready'; mErr.hidden = true; }; rv.readAsDataURL(file);
+          return;
+        }
+        var r = new FileReader();
+        r.onload = function () {
+          var im = new Image();
+          im.onload = function () {
+            var max = 1800, s = Math.min(1, max / Math.max(im.naturalWidth, im.naturalHeight));
+            var cv = document.createElement('canvas'); cv.width = Math.round(im.naturalWidth * s); cv.height = Math.round(im.naturalHeight * s);
+            cv.getContext('2d').drawImage(im, 0, 0, cv.width, cv.height);
+            mData = cv.toDataURL('image/jpeg', 0.85); mUrl.value = ''; mUrl.placeholder = file.name + ' is ready'; mPrev.src = mData; mPrev.hidden = false; mErr.hidden = true;
+          };
+          im.src = r.result;
         };
-        im.src = r.result;
+        r.readAsDataURL(file);
       };
-      r.readAsDataURL(file);
-    };
-    f.click();
-  });
-  modal.querySelector('[data-apply]').addEventListener('click', function () {
-    var val = mData || mUrl.value.trim();
-    if (val) snapshot();
-    if (!val) { mErr.textContent = mKind === 'img' ? 'Paste a photo link or upload a photo first.' : 'Paste a video link or upload a clip first.'; mErr.hidden = false; return; }
-    if (mKind === 'img') { mTarget.src = val; mTarget.removeAttribute('srcset'); mTarget.alt = mAlt.value; }
-    else { mTarget.setAttribute('data-video', val); renderVideo(mTarget); }
-    if (mDone) mDone(true);
-    closeModal(); refreshGrids(); autosave(); placeTools();
-  });
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && modal.classList.contains('on')) { if (mDone) mDone(false); closeModal(); } });
+      f.click();
+    });
+    modal.querySelector('[data-apply]').addEventListener('click', function () {
+      var val = mData || mUrl.value.trim();
+      if (val) snapshot();
+      if (!val) { mErr.textContent = mKind === 'img' ? 'Paste a photo link or upload a photo first.' : 'Paste a video link or upload a clip first.'; mErr.hidden = false; return; }
+      if (mKind === 'img') {
+        mTarget.src = val; mTarget.removeAttribute('srcset'); mTarget.alt = mAlt.value;
+        if (mTarget.classList.contains('page-hero-img')) { var cr = mTarget.parentElement.querySelector('.page-hero-credit'); if (cr) cr.remove(); }
+      }
+      else { mTarget.setAttribute('data-video', val); renderVideo(mTarget); }
+      if (mDone) mDone(true);
+      closeModal(); refreshGrids(); autosave(); placeTools();
+    });
+  }
+  wireModal();
+  modal.addEventListener('click', function (e) { if (e.target === modal && !modal.dataset.mode) { if (mDone) mDone(false); closeModal(); } });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && modal.classList.contains('on') && !modal.dataset.mode) { if (mDone) mDone(false); closeModal(); } });
 
   function cleanHTML() {
     var c = document.getElementById('app').cloneNode(true);
@@ -309,7 +316,7 @@
     deselect();
     document.getElementById('app').innerHTML = html;
     document.querySelectorAll('#app .reveal').forEach(function (el) { el.classList.add('reveal-in'); });
-    applyEditable(true); addGridButtons(); renderAllVideos(); setupPOI(); refreshGrids();
+    applyEditable(true); addGridButtons(); addHeroButtons(); renderAllVideos(); setupPOI(); refreshGrids();
     autosave();
   }
   function undo() { if (!past.length) { flash('Nothing to undo'); return; } future.push(cleanHTML()); restore(past.pop()); updateHistoryButtons(); flash('Undone'); }
@@ -434,10 +441,10 @@
     editing = on;
     document.body.classList.toggle('editing', on);
     bar.querySelector('[data-a="edit"]').textContent = on ? 'Done' : 'Edit page';
-    ['save', 'reset', 'undo', 'redo'].forEach(function (k) { bar.querySelector('[data-a="' + k + '"]').hidden = !on; });
+    ['save', 'reset', 'undo', 'redo', 'publish'].forEach(function (k) { bar.querySelector('[data-a="' + k + '"]').hidden = !on; });
     document.querySelectorAll('#app .reveal').forEach(function (el) { el.classList.add('reveal-in'); });
     applyEditable(on);
-    if (on) { addGridButtons(); updateHistoryButtons(); flash(HINT); }
+    if (on) { addGridButtons(); addHeroButtons(); updateHistoryButtons(); flash(HINT); }
     else {
       deselect();
       document.querySelectorAll('#app .ed-only').forEach(function (el) { el.remove(); });
@@ -454,6 +461,7 @@
     else if (a === 'undo') undo();
     else if (a === 'redo') redo();
     else if (a === 'save') download();
+    else if (a === 'publish') publish();
     else if (a === 'reset') {
       if (confirm('Throw away every change on this page and go back to the version on the website?')) {
         try { localStorage.removeItem(EDITOR_KEY); } catch (err) {}
@@ -464,6 +472,8 @@
 
   document.addEventListener('click', function (e) {
     if (!editing || e.target.closest('#ed-bar') || e.target.closest('#ed-modal') || e.target.closest('#ed-sel')) return;
+    var heroBtn = e.target.closest('.ed-hero-btn');
+    if (heroBtn) { e.preventDefault(); var hi = heroBtn.parentElement.querySelector('.page-hero-img'); if (hi) { select(hi); openModal('img', hi); } return; }
     var add = e.target.closest('[data-add]');
     if (add) {
       snapshot();
@@ -543,6 +553,28 @@
 
   function download() {
     deselect();
+    var out = buildPageHTML();
+    var name = PAGE;
+    var url = URL.createObjectURL(new Blob([out], { type: 'text/html' }));
+    var link = document.createElement('a'); link.href = url; link.download = name;
+    document.body.appendChild(link); link.click(); link.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+    flash('Downloaded ' + name + ' (a backup copy).');
+  }
+
+  /* ---------- background photo buttons on page headers ---------- */
+  function addHeroButtons() {
+    document.querySelectorAll('#app .page-hero').forEach(function (s) {
+      if (s.querySelector(':scope > .ed-hero-btn')) return;
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'ed-hero-btn ed-only'; b.setAttribute('contenteditable', 'false');
+      b.textContent = 'Change background photo';
+      s.appendChild(b);
+    });
+  }
+
+  /* ---------- the page as it should be saved ---------- */
+  function buildPageHTML() {
     var html = '<!doctype html>\n' + document.documentElement.outerHTML;
     var doc = new DOMParser().parseFromString(html, 'text/html');
     doc.getElementById('app').innerHTML = cleanHTML();
@@ -551,15 +583,184 @@
     if (!doc.body.getAttribute('class')) doc.body.removeAttribute('class');
     doc.documentElement.style.overflow = '';
     if (!doc.documentElement.getAttribute('style')) doc.documentElement.removeAttribute('style');
-    var out = '<!doctype html>\n' + doc.documentElement.outerHTML;
-    var name = location.pathname.split('/').pop() || 'index.html';
-    var url = URL.createObjectURL(new Blob([out], { type: 'text/html' }));
-    var link = document.createElement('a'); link.href = url; link.download = name;
-    document.body.appendChild(link); link.click(); link.remove();
-    setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
-    flash('Downloaded ' + name + '. Now upload it to GitHub.');
+    return '<!doctype html>\n' + doc.documentElement.outerHTML;
   }
 
+  /* ---------- publish straight to GitHub ---------- */
+  var GH = { owner: 'barbaraquito-art', repo: 'Beaute-of-Angaur-', branch: 'main' };
+  var TOKEN_KEY = 'anguar-gh-token';
+  function token() { try { return localStorage.getItem(TOKEN_KEY) || ''; } catch (e) { return ''; } }
+  function api(path, opts) {
+    opts = opts || {};
+    var h = { 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28', 'Authorization': 'Bearer ' + token() };
+    if (opts.body) h['Content-Type'] = 'application/json';
+    return fetch('https://api.github.com/repos/' + GH.owner + '/' + GH.repo + path, { method: opts.method || 'GET', headers: h, body: opts.body, cache: 'no-store' })
+      .then(function (r) {
+        return r.text().then(function (t) {
+          var j = null; try { j = t ? JSON.parse(t) : null; } catch (e) {}
+          if (!r.ok) { var err = new Error((j && j.message) || ('GitHub error ' + r.status)); err.status = r.status; throw err; }
+          return j;
+        });
+      });
+  }
+  function b64FromBytes(bytes) { var s = ''; for (var i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000)); return btoa(s); }
+  function b64FromText(t) { return b64FromBytes(new TextEncoder().encode(t)); }
+  function textFromB64(b) { var bin = atob(b.replace(/\s/g, '')); var u = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return new TextDecoder().decode(u); }
+  function friendly(err) {
+    if (!err) return 'Something went wrong.';
+    if (err.status === 401) return 'GitHub did not accept the access key. It may have expired. Connect again with a new key.';
+    if (err.status === 403 || err.status === 404) return 'This access key cannot change the Beaute-of-Angaur- repository. Check it has "Contents: Read and write" for that repository.';
+    if (err.status === 409) return 'The page changed on GitHub while publishing. Reload the page and try again.';
+    if (err.status === 422) return 'GitHub rejected the file: ' + err.message;
+    if (/Failed to fetch|NetworkError|Load failed/.test(err.message || '')) return 'Could not reach GitHub. Check your internet connection.';
+    return err.message || 'Something went wrong.';
+  }
+
+  /* modal content helpers */
+  var sheet = modal.querySelector('.ed-sheet');
+  var savedSheet = sheet.innerHTML;
+  function sheetHTML(h) { sheet.innerHTML = h; modal.dataset.mode = 'custom'; modal.classList.add('on'); }
+  function restoreSheet() {
+    modal.classList.remove('on'); delete modal.dataset.mode;
+    sheet.innerHTML = savedSheet;
+    mUrl = modal.querySelector('#ed-url'); mAlt = modal.querySelector('#ed-alt'); mPrev = modal.querySelector('.ed-preview'); mErr = modal.querySelector('.ed-error');
+    wireModal();
+  }
+
+  function connectDialog(then) {
+    sheetHTML(
+      '<h3>Connect publishing</h3>' +
+      '<p class="ed-hint">Publishing saves your changes straight to your live website. It needs a GitHub access key that only you hold. The key is stored on this device only, never in the website.</p>' +
+      '<ol class="ed-steps"><li>Open <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">GitHub → New access key</a> (signed in as ' + GH.owner + ').</li>' +
+      '<li>Name it <b>Website editor</b> and choose an expiry date.</li>' +
+      '<li>Under <b>Repository access</b>, choose <b>Only select repositories</b> → <b>' + GH.repo + '</b>.</li>' +
+      '<li>Under <b>Permissions → Repository permissions</b>, set <b>Contents</b> to <b>Read and write</b>.</li>' +
+      '<li>Click <b>Generate token</b>, copy it and paste it below.</li></ol>' +
+      '<label for="ed-token">Access key</label><input id="ed-token" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…">' +
+      '<p class="ed-error" role="alert" hidden></p>' +
+      '<div class="ed-row"><button type="button" data-x="cancel">Cancel</button><button type="button" class="ed-go" data-x="save">Connect</button></div>');
+    var inp = sheet.querySelector('#ed-token'), er = sheet.querySelector('.ed-error');
+    setTimeout(function () { inp.focus(); }, 30);
+    sheet.querySelector('[data-x=cancel]').onclick = restoreSheet;
+    sheet.querySelector('[data-x=save]').onclick = function () {
+      var t = inp.value.trim();
+      if (!/^(github_pat_|ghp_)[A-Za-z0-9_]{20,}$/.test(t)) { er.textContent = 'That does not look like a GitHub access key. It starts with github_pat_.'; er.hidden = false; return; }
+      var btn = this; btn.disabled = true; btn.textContent = 'Checking…'; er.hidden = true;
+      try { localStorage.setItem(TOKEN_KEY, t); } catch (e) {}
+      api('').then(function (r) {
+        if (!r || !r.permissions || !r.permissions.push) { var e2 = new Error('no push'); e2.status = 403; throw e2; }
+        restoreSheet(); flash('Publishing connected'); if (then) then();
+      }).catch(function (err) {
+        try { localStorage.removeItem(TOKEN_KEY); } catch (e) {}
+        er.textContent = friendly(err); er.hidden = false; btn.disabled = false; btn.textContent = 'Connect';
+      });
+    };
+  }
+
+  function dataUrlToBytes(u) {
+    var m = u.match(/^data:([^;,]+)(;base64)?,(.*)$/); if (!m) return null;
+    var bin = m[2] ? atob(m[3]) : decodeURIComponent(m[3]);
+    var bytes = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return { type: m[1], bytes: bytes };
+  }
+  function shortHash(bytes) { return crypto.subtle.digest('SHA-256', bytes).then(function (h) { return Array.from(new Uint8Array(h)).slice(0, 6).map(function (x) { return x.toString(16).padStart(2, '0'); }).join(''); }); }
+  var EXT = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif', 'video/mp4': 'mp4', 'video/webm': 'webm', 'video/quicktime': 'mov' };
+
+  /* move photos and clips uploaded from a device into the repository, so pages stay small */
+  function uploadEmbeddedMedia(progress) {
+    var jobs = [];
+    document.querySelectorAll('#app img[src^="data:"]').forEach(function (im) { jobs.push({ el: im, attr: 'src', val: im.getAttribute('src'), dir: 'images/uploads/' }); });
+    document.querySelectorAll('#app [data-video^="data:"]').forEach(function (v) { jobs.push({ el: v, attr: 'data-video', val: v.getAttribute('data-video'), dir: 'videos/uploads/' }); });
+    var seq = Promise.resolve();
+    jobs.forEach(function (j, i) {
+      seq = seq.then(function () {
+        var f = dataUrlToBytes(j.val); if (!f) return;
+        progress('Uploading photo or video ' + (i + 1) + ' of ' + jobs.length + '…');
+        return shortHash(f.bytes).then(function (h) {
+          var path = j.dir + h + '.' + (EXT[f.type] || 'bin');
+          return api('/contents/' + path + '?ref=' + GH.branch).then(function () { return path; }, function (err) {
+            if (err.status !== 404) throw err;
+            return api('/contents/' + path, { method: 'PUT', body: JSON.stringify({ message: 'Add ' + path + ' from website editor', content: b64FromBytes(f.bytes), branch: GH.branch }) }).then(function () { return path; });
+          });
+        }).then(function (path) {
+          if (!path) return;
+          j.el.setAttribute(j.attr, path);
+          if (j.attr === 'data-video') renderVideo(j.el);
+        });
+      });
+    });
+    return seq.then(function () { return jobs.length; });
+  }
+
+  function appHashOf(html) {
+    var d = new DOMParser().parseFromString(html, 'text/html');
+    var a = d.getElementById('app');
+    return a ? hash(a.innerHTML) : '';
+  }
+
+  var publishing = false;
+  function publish() {
+    if (publishing) return;
+    if (!token()) { connectDialog(publish); return; }
+    publishing = true;
+    deselect();
+    sheetHTML('<h3>Publishing ' + PAGE + '</h3><p class="ed-progress" role="status">Preparing…</p><p class="ed-error" role="alert" hidden></p><div class="ed-row" hidden><button type="button" class="ed-go" data-x="close">Close</button></div>');
+    var prog = sheet.querySelector('.ed-progress'), er = sheet.querySelector('.ed-error'), row = sheet.querySelector('.ed-row');
+    function say(t) { prog.textContent = t; }
+    function fail(err) {
+      publishing = false;
+      say('Not published.'); er.textContent = friendly(err); er.hidden = false; row.hidden = false;
+      sheet.querySelector('[data-x=close]').onclick = function () { if (err && err.status === 401) { try { localStorage.removeItem(TOKEN_KEY); } catch (e) {} } restoreSheet(); };
+    }
+    var remote;
+    api('/contents/' + PAGE + '?ref=' + GH.branch).then(function (r) {
+      remote = r;
+      var remoteHtml = textFromB64(r.content);
+      if (appHashOf(remoteHtml) !== BASE) {
+        return new Promise(function (res, rej) {
+          say('This page was changed on GitHub after you opened it.');
+          er.textContent = 'Publishing now will replace those newer changes with yours.'; er.hidden = false;
+          row.hidden = false;
+          row.innerHTML = '<button type="button" data-x="stop">Cancel</button><button type="button" class="ed-go" data-x="go">Publish anyway</button>';
+          row.querySelector('[data-x=stop]').onclick = function () { publishing = false; restoreSheet(); rej(null); };
+          row.querySelector('[data-x=go]').onclick = function () { er.hidden = true; row.hidden = true; res(); };
+        });
+      }
+    }).then(function () {
+      return uploadEmbeddedMedia(say);
+    }).then(function () {
+      say('Saving ' + PAGE + ' to GitHub…');
+      var html = buildPageHTML();
+      return api('/contents/' + PAGE, { method: 'PUT', body: JSON.stringify({ message: 'Update ' + PAGE + ' from website editor', content: b64FromText(html), sha: remote.sha, branch: GH.branch }) })
+        .then(function (res) { return { res: res, html: html }; });
+    }).then(function (out) {
+      var newBase = appHashOf(out.html);
+      BASE = newBase;
+      try { localStorage.removeItem(EDITOR_KEY); } catch (e) {}
+      past = []; future = []; updateHistoryButtons();
+      var commitUrl = out.res && out.res.commit && out.res.commit.html_url;
+      say('Saved to GitHub. Waiting for the live website to update…');
+      var tries = 0;
+      (function poll() {
+        tries++;
+        fetch(location.pathname + '?live=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.text(); }).then(function (t) {
+          if (appHashOf(t) === newBase) {
+            publishing = false;
+            say('Published. Your change is live on the website now.');
+            prog.insertAdjacentHTML('afterend', '<p class="ed-ok">✓ Live at <a href="' + location.pathname + '" target="_blank" rel="noopener">' + location.host + location.pathname + '</a>' + (commitUrl ? ' · <a href="' + commitUrl + '" target="_blank" rel="noopener">View on GitHub</a>' : '') + '</p>');
+            row.hidden = false; row.innerHTML = '<button type="button" class="ed-go" data-x="close">Done</button>';
+            row.querySelector('[data-x=close]').onclick = restoreSheet;
+          } else if (tries < 36) setTimeout(poll, 5000);
+          else {
+            publishing = false;
+            say('Saved to GitHub. The live website is taking longer than usual to update. It will show your change within a few minutes.');
+            row.hidden = false; row.innerHTML = '<button type="button" class="ed-go" data-x="close">Done</button>';
+            row.querySelector('[data-x=close]').onclick = restoreSheet;
+          }
+        }).catch(function () { if (tries < 36) setTimeout(poll, 5000); });
+      })();
+    }).catch(function (err) { if (err) fail(err); });
+  }
   setupReveal(); setupMenu(); setupPOI(); setupForms();
   renderAllVideos(); refreshGrids();
   if (isOwner && params.has('edit')) setEditing(true);
