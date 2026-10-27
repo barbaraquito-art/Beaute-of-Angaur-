@@ -144,11 +144,10 @@ body.editing .ed-hero-btn{position:absolute;right:12px;top:44px;z-index:5;border
 .pc-row{display:flex;align-items:baseline;gap:1.4cqw;border-bottom:.18cqw solid #b9c2d3;padding-bottom:.45cqw;min-width:0}
 .pc-row b{font:700 2.45cqw/1.2 "Plus Jakarta Sans",Arial,sans-serif;color:#1747a6;white-space:nowrap}
 .pc-row span{font:800 2.6cqw/1.2 Outfit,Arial,sans-serif;color:#0d2d6b;text-transform:uppercase;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.pc-row .pc-sig{flex:1;border-bottom:none}
 .pc-text{font-size:1.7cqw;line-height:1.4;color:#222;margin:.8cqw 0 0}
 .pc-officer{display:grid;grid-template-columns:1fr auto;align-items:end;gap:2cqw;margin-top:.6cqw}
 .pc-officer .pc-role{font:700 1.9cqw/1.2 "Plus Jakarta Sans",Arial,sans-serif;color:#1747a6}
-.pc-officer .pc-name{font:800 2.6cqw/1.2 Outfit,Arial,sans-serif;color:#0d2d6b;border-bottom:.18cqw solid #b9c2d3;padding:.4cqw 0}
+.pc-officer .pc-name{font:800 2.6cqw/1.2 Outfit,Arial,sans-serif;color:#0d2d6b;padding:.3cqw 0 0}
 .pc-side{display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:1cqw;min-height:0}
 .pc-seal{width:96%;aspect-ratio:1;border-radius:50%;object-fit:cover}
 .pc-qr{width:11cqw;aspect-ratio:1;background:#fff;margin:0 auto}
@@ -188,3 +187,13 @@ body.editing .ed-bg-looks{display:inline-flex;background:#fff;border-radius:50px
 body.editing .ed-bg-looks button{background:transparent;color:#123d2a;border-radius:50px;padding:6px 11px}
 body.editing .ed-bg-looks button[aria-pressed="true"]{background:#efa04b;color:#123d2a}
 #ed-bar button[data-a=older]{background:#efa04b;color:#123d2a}
+.ps-permit-no{font-family:Outfit,system-ui,sans-serif;font-weight:800;font-size:34px;letter-spacing:1px;color:#123d2a;margin:4px 0 14px}
+.pf-alert.info b{color:#123d2a}
+#ps-card .ps-pending-only{display:none}
+#ps-card.is-pending .ps-pending-only{display:block}
+#ps-card.is-pending .ps-approved-only{display:none!important}
+#ps-card.is-pending .pc-band{background:#efa04b;color:#13306b}
+#ps-card.is-pending .pc-status{color:#b45309}
+#ps-card.is-pending .pc-qr{display:none}
+.pc-row{padding-bottom:.3cqw}
+.pc-text{margin-top:.5cqw}

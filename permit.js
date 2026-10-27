@@ -24,7 +24,8 @@
   var form = $('#permit-form');
   if (form) {
     var notReady = $('#pf-not-ready'), submitBtn = $('#pf-submit'), formErr = $('#pf-form-error');
-    if (!API) { show(notReady, true); submitBtn.disabled = true; }
+    // the page may have been saved from the editor in either state, so always set both ways
+    show(notReady, !API); submitBtn.disabled = !API; text(submitBtn, 'Submit application');
     var today = new Date(); today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
     var todayIso = today.toISOString().slice(0, 10);
     form.arrival.min = todayIso; form.departure.min = todayIso;
@@ -98,6 +99,7 @@
     var ref = (qs2.get('ref') || '').trim(), key = (qs2.get('key') || '').trim();
     var lookup = $('#ps-lookup'), loading = $('#ps-loading'), errBox = $('#ps-error');
     var receipt = $('#ps-receipt'), cardWrap = $('#ps-card'), rejected = $('#ps-rejected'), notReady2 = $('#ps-not-ready');
+    show(notReady2, !API);
 
     function load(params) {
       if (!API) { show(notReady2, true); show(lookup, false); return; }
@@ -125,19 +127,23 @@
       });
     }
     function render(d) {
-      if (d.status === 'Approved' && d.permitNo) {
-        fill(cardWrap, d); show(cardWrap, true); document.body.classList.add('print-card');
-        var qr = $('#pc-qr');
-        if (qr && window.QRCode) {
-          qr.innerHTML = '';
-          new window.QRCode(qr, { text: location.href.split('&new=')[0], width: 256, height: 256, correctLevel: window.QRCode.CorrectLevel.M });
-        }
+      var approved = d.status === 'Approved' && d.permitNo;
+      if (d.status === 'Rejected') { fill(rejected, d); show(rejected, true); return; }
+      d.statusText = approved ? 'Paid · Valid' : 'Pending payment';
+      fill(cardWrap, d); show(cardWrap, true);
+      cardWrap.classList.toggle('is-pending', !approved);
+      text(cardWrap.querySelector('[data-band]'), approved ? 'OFFICIAL VISITOR PERMIT' : 'PENDING PAYMENT · NOT YET VALID');
+      var qr = $('#pc-qr');
+      if (qr) qr.innerHTML = '';
+      if (approved) {
+        document.body.classList.add('print-card');
+        if (qr && window.QRCode) new window.QRCode(qr, { text: location.href.split('&new=')[0], width: 256, height: 256, correctLevel: window.QRCode.CorrectLevel.M });
         document.title = 'Visitor Permit ' + d.permitNo + ' — Angaur State';
-      } else if (d.status === 'Rejected') {
-        fill(rejected, d); show(rejected, true);
       } else {
+        document.body.classList.remove('print-card');
         fill(receipt, d); show(receipt, true);
         show($('#ps-new'), qs2.get('new') === '1');
+        document.title = 'Permit ' + (d.permitNo || d.ref) + ' — pending payment';
       }
     }
 

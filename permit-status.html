@@ -14,7 +14,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
-<link rel="stylesheet" href="styles.css?v=2b0953ad">
+<link rel="stylesheet" href="styles.css?v=e3157d23">
 <noscript><style>.reveal{opacity:1;transform:none}</style></noscript>
 </head>
 <body>
@@ -27,57 +27,62 @@
 
 <div id="ps-lookup" class="pf-card" hidden>
 <h2>Find your application</h2>
-<p class="pf-sub">Enter the reference number from your receipt email and the email address you applied with.</p>
+<p class="pf-sub">Enter your permit number (or reference number) and the email address you applied with.</p>
 <form id="ps-lookup-form" class="ps-lookup" novalidate>
-<div class="pf-field"><label for="ps-ref">Reference number</label><input id="ps-ref" name="ref" placeholder="APP-261027-ABCDE" autocapitalize="characters" maxlength="30"></div>
+<div class="pf-field"><label for="ps-ref">Permit number</label><input id="ps-ref" name="ref" placeholder="ASG-00001" autocapitalize="characters" maxlength="30"></div>
 <div class="pf-field"><label for="ps-email">Email</label><input id="ps-email" name="email" type="email" autocomplete="email" placeholder="name@example.com" maxlength="160"></div>
 <button class="pf-btn dark" type="submit">Check status</button>
 </form>
-<p id="ps-lookup-err" class="pf-err" style="display:block;color:#b42318;font-size:13px;margin:10px 0 0" hidden>Enter your reference number and a valid email address.</p>
+<p id="ps-lookup-err" class="pf-err" style="display:block;color:#b42318;font-size:13px;margin:10px 0 0" hidden>Enter your permit number and a valid email address.</p>
 <div hidden style="margin-top:18px"><p class="pf-sub" style="margin-bottom:8px">Applications made on this device:</p><div id="ps-recent" class="pf-actions" style="margin-top:0"></div></div>
 <p class="pf-sub" style="margin:18px 0 0">Haven't applied yet? <a href="permit.html" class="font-semibold text-green">Apply for a visitor permit</a>.</p>
 </div>
 
 <div id="ps-receipt" class="pf-card" hidden>
-<div id="ps-new" class="pf-alert ok" role="status" hidden>Thank you. Your application has been received and a receipt has been emailed to you.</div>
-<span class="ps-badge pending">Pending review</span>
-<h2 style="margin-top:14px">Application receipt</h2>
-<p class="pf-sub">This receipt confirms your application. <b>It is not a permit.</b> Your permit card will appear on this page after the Angaur State Government office approves your application. Keep this page's link or your reference number.</p>
-<dl class="ps-rows"><dt>Reference</dt><dd data-f="ref"></dd><dt>Name</dt><dd data-f="name"></dd><dt>Arrival</dt><dd data-f="arrival"></dd><dt>Departure</dt><dd data-f="departure"></dd><dt>Visitors</dt><dd data-f="visitors"></dd><dt>Submitted</dt><dd data-f="submitted"></dd><dt>Status</dt><dd>Pending review</dd></dl>
-<div class="pf-actions"><button type="button" class="pf-btn ghost" data-print-receipt onclick="window.print()">Print receipt</button><a class="pf-btn ghost" href="contact.html">Contact the office</a></div>
+<div id="ps-new" class="pf-alert ok" role="status" hidden>Thank you. Your application has been received. Your permit number is below, and a copy has been emailed to you.</div>
+<span class="ps-badge pending">Pending payment</span>
+<h2 style="margin-top:14px">Your permit number</h2>
+<p class="ps-permit-no" data-f="permitNo"></p>
+<p class="pf-sub" style="margin-bottom:14px">Reference No. <b data-f="ref"></b> · Submitted <span data-f="submitted"></span></p>
+<div class="pf-alert info"><b>Next step: payment.</b> Please visit the <b>Medalaii Office in Koror</b> and see <b>Teresa</b> or <b>Barbara</b> to pay for your permit. Bring your permit number.</div>
+<p class="pf-sub">Your permit card below is <b>not valid until payment is confirmed</b>. Once the office confirms your payment, this page shows your official permit card, ready to print. Keep this page's link or your permit number.</p>
+<div class="pf-actions"><a class="pf-btn ghost" href="contact.html">Contact the office</a></div>
 </div>
 
 <div id="ps-rejected" class="pf-card" hidden>
 <span class="ps-badge rejected">Not approved</span>
 <h2 style="margin-top:14px">Application not approved</h2>
-<p class="pf-sub">The Angaur State Government office could not approve application <b data-f="ref"></b>.</p>
+<p class="pf-sub">The Angaur State Government office could not approve permit application <b data-f="ref"></b>.</p>
 <dl class="ps-rows"><dt>Reason</dt><dd data-f="note"></dd><dt>Decided</dt><dd data-f="decided"></dd></dl>
 <div class="pf-actions"><a class="pf-btn dark" href="contact.html">Contact the office</a><a class="pf-btn ghost" href="permit.html">Apply again</a></div>
 </div>
 
 <div id="ps-card" hidden>
-<div class="pf-alert ok" role="status"><span class="ps-badge approved">Approved</span> Your visitor permit has been approved. Print it or save it as a PDF and carry it during your visit.</div>
+<div class="pf-alert ok ps-approved-only" role="status"><span class="ps-badge approved">Approved</span> Your payment is confirmed and your visitor permit is valid. Print it or save it as a PDF and carry it during your visit.</div>
 <div class="pc-stage"><article class="pc" aria-label="Angaur State visitor permit card">
 <div class="pc-top"><img class="pc-flag" src="https://beaute-of-anguar.lovable.app/assets/angaur-flag-Bqp_J4tZ.jpg" alt="Angaur State flag"><div class="pc-titles"><div class="pc-gov">ANGAUR STATE GOVERNMENT</div><div class="pc-kind">TOURISM PERMIT CARD</div></div></div>
-<div class="pc-band">OFFICIAL VISITOR PERMIT</div>
+<div class="pc-band" data-band>OFFICIAL VISITOR PERMIT</div>
 <div class="pc-body"><div class="pc-fields">
 <div class="pc-row"><b>Visitor Name:</b><span data-f="name"></span></div>
 <div class="pc-row"><b>Permit No.:</b><span data-f="permitNo"></span></div>
+<div class="pc-row"><b>Reference No.:</b><span data-f="ref"></span></div>
 <div class="pc-row"><b>Arrival Date:</b><span data-f="arrival"></span></div>
 <div class="pc-row"><b>Departure Date:</b><span data-f="departure"></span></div>
-<div class="pc-row"><b>Visitor Signature:</b><span class="pc-sig">&nbsp;</span></div>
-<p class="pc-text">This card confirms that the visitor named above holds an approved Angaur State visitor permit for the dates shown, subject to the terms and conditions of Executive Order No. 2026-02.</p>
+<div class="pc-row"><b>Status:</b><span class="pc-status" data-f="statusText"></span></div>
+<p class="pc-text ps-approved-only">This card confirms that the visitor named above holds a paid Angaur State visitor permit for the dates shown, subject to the terms and conditions of Executive Order No. 2026-02.</p>
+<p class="pc-text ps-pending-only">Not valid until payment is confirmed. Pay at the Medalaii Office in Koror (see Teresa or Barbara), subject to Executive Order No. 2026-02.</p>
 <div class="pc-officer"><div><div class="pc-role">Governor, Angaur State Government</div><div class="pc-name">KENNOSUKE A. SUZUKY</div></div></div>
 </div>
-<div class="pc-side"><img class="pc-seal" src="angaur-seal.jpg" alt="Seal of the Office of the Governor, Angaur State"><div><div class="pc-qr" id="pc-qr" aria-label="QR code to verify this permit"></div><div class="pc-verify">Scan to verify</div></div></div>
+<div class="pc-side"><img class="pc-seal" src="angaur-seal.jpg" alt="Seal of the Office of the Governor, Angaur State"><div><div class="pc-qr" id="pc-qr" aria-label="QR code to verify this permit"></div><div class="pc-verify ps-approved-only">Scan to verify</div><div class="pc-verify ps-pending-only">QR code issued after payment</div></div></div>
 </div>
 <div class="pc-foot"><b>IMPORTANT:</b> CARRY THIS CARD AT ALL TIMES. BOAT TRAVEL SUBJECT TO WEATHER AND SAFETY CONDITIONS.</div>
 </article></div>
-<div class="pc-actions"><button type="button" class="pf-btn primary" data-print>Print or save as PDF</button><a class="pf-btn ghost" href="visit.html">Visitor guidelines</a></div>
+<div class="pc-actions ps-approved-only"><button type="button" class="pf-btn primary" data-print>Print or save as PDF</button><a class="pf-btn ghost" href="visit.html">Visitor guidelines</a></div>
+</div>
 </div>
 
 </div></div></section>
 </main><footer class="border-t border-black/[0.08] bg-page"><div class="mx-auto grid max-w-[1180px] gap-12 px-6 pt-14 pb-10 md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr]"><div><div class="flex items-center gap-3"><span class="flex h-11 w-11 items-center justify-center rounded-[13px] text-white" style="background-image:linear-gradient(135deg, #1D6B47 0%, #123D2A 100%)" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-flower2 lucide-flower-2 h-5 w-5" aria-hidden="true"><path d="M12 5a3 3 0 1 1 3 3m-3-3a3 3 0 1 0-3 3m3-3v1M9 8a3 3 0 1 0 3 3M9 8h1m5 0a3 3 0 1 1-3 3m3-3h-1m-2 3v-1"></path><circle cx="12" cy="8" r="2"></circle><path d="M12 10v12"></path><path d="M12 22c4.2 0 7-1.667 7-5-4.2 0-7 1.667-7 5Z"></path><path d="M12 22c-4.2 0-7-1.667-7-5 4.2 0 7 1.667 7 5Z"></path></svg></span><span class="font-display text-[18px] font-extrabold text-ink">Beauté of Anguar</span></div><p class="mt-4 text-[13.5px] leading-[1.7] text-muted-text">Official website of Angaur State, Republic of Palau</p><p class="mt-2 text-[13.5px] font-semibold text-green">Preserving heritage. Building the future.</p><a href="https://www.facebook.com/profile.php?id=61593915684140" target="_blank" rel="noopener noreferrer" aria-label="Beauté of Anguar on Facebook" class="mt-5 flex h-10 w-10 items-center justify-center rounded-full bg-panel text-green transition-colors hover:bg-amber hover:text-green-deep"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="shrink-0"><path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.52 1.49-3.91 3.77-3.91 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.78-1.63 1.57v1.89h2.78l-.44 2.91h-2.34V22c4.78-.76 8.44-4.92 8.44-9.94z"></path></svg></a></div><div><p class="eyebrow text-muted-text">Explore</p><ul class="mt-5 space-y-2.5"><li><a class="text-[13.5px] text-body transition-colors hover:text-amber" href="index.html">Home</a></li><li><a href="discover.html" class="text-[13.5px] text-body transition-colors hover:text-amber">Discover</a></li><li><a href="heritage.html" class="text-[13.5px] text-body transition-colors hover:text-amber">Heritage</a></li><li><a href="sites.html" class="text-[13.5px] text-body transition-colors hover:text-amber">Sites</a></li><li><a href="governance.html" class="text-[13.5px] text-body transition-colors hover:text-amber">Governance</a></li><li><a href="gallery.html" class="text-[13.5px] text-body transition-colors hover:text-amber">Gallery</a></li><li><a href="contact.html" class="text-[13.5px] text-body transition-colors hover:text-amber">Contact</a></li><li><a href="permit.html" class="text-[13.5px] text-body transition-colors hover:text-amber">Apply for a Permit</a></li></ul></div><div><p class="eyebrow text-muted-text">Contact</p><ul class="mt-5 space-y-2.5 text-[13.5px] text-body"></ul></div><div><p class="eyebrow text-muted-text">Newsletter</p><p class="mt-5 text-[13.5px] leading-[1.7] text-muted-text">State updates, heritage news and visitor notices.</p><form class="mt-4 flex flex-col gap-2.5 sm:flex-row"><label for="newsletter-email" class="sr-only">Email address</label><input id="newsletter-email" type="email" required="" placeholder="Your email" class="w-full rounded-[50px] border border-black/10 bg-white px-5 py-3 text-[13.5px] text-ink outline-none placeholder:text-faint focus:border-amber"><button type="submit" class="shrink-0 rounded-[50px] bg-green-deep px-6 py-3 text-[13.5px] font-semibold text-white transition-colors hover:bg-amber hover:text-green-deep">Subscribe</button></form></div></div><div class="border-t border-black/[0.08]"><p class="mx-auto max-w-[1180px] px-6 py-6 text-center text-[12.5px] text-faint">© 2026 Angaur State Government. All rights reserved.<span aria-hidden="true" class="mx-2">·</span><a href="https://beaute-of-anguar.lovable.app/admin" class="text-[12.5px] text-faint transition-colors hover:text-amber">Admin</a></p></div></footer></div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script><script src="permit-config.js?v=733c5164"></script><script src="permit.js?v=3f41e070" defer></script><script src="site.js?v=eb8ada27"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script><script src="permit-config.js?v=733c5164"></script><script src="permit.js?v=b88ff9f0" defer></script><script src="site.js?v=eb8ada27"></script>
 </body>
 </html>

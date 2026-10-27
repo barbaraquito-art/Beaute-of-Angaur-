@@ -2,7 +2,7 @@
  * Angaur State — Visitor Permit backend (Google Apps Script)
  *
  * Stores permit applications in this Google Sheet (private to the State office),
- * returns a reference number and a private status link to the applicant, and lets
+ * returns a permit number (status Pending payment) and a private status link to the applicant, and lets
  * authorised staff approve or reject applications from the "Angaur Permits" menu.
  *
  * Only rows marked Approved by staff ever produce a permit card. Submitting an
@@ -21,7 +21,9 @@ var SITE_URL = 'https://barbaraquito-art.github.io/Beaute-of-Angaur-/';
 var HEADERS = ['Submitted', 'Reference', 'Access key', 'Status', 'Permit No.', 'Decision date', 'Decision note',
   'Full name', 'Email', 'Phone', 'Nationality', 'Passport / ID no.', 'Arrival', 'Departure',
   'Number of visitors', 'Purpose of visit', 'Travel method', 'Accommodation', 'Notes'];
-var STATUSES = ['Pending', 'Approved', 'Rejected'];
+var STATUSES = ['Pending payment', 'Approved', 'Rejected'];
+// Shown to applicants on their receipt email. Edit to change the office or contact names.
+var PAYMENT_NOTE = 'Please visit the Medalaii Office in Koror and see Teresa or Barbara to pay for your permit. Bring your permit number.';
 
 function setup() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -36,7 +38,7 @@ function setup() {
 
 function onOpen() {
   SpreadsheetApp.getUi().createMenu('Angaur Permits')
-    .addItem('Approve selected application', 'approveSelected')
+    .addItem('Payment received: approve selected', 'approveSelected')
     .addItem('Reject selected application', 'rejectSelected')
     .addItem('Set up sheet', 'setup')
     .addToUi();
@@ -53,24 +55,28 @@ function doPost(e) {
     var err = validate_(d);
     if (err) return json_({ ok: false, error: err });
     var sh = sheet_();
+    var props = PropertiesService.getScriptProperties();
+    var n = Number(props.getProperty('NEXT_PERMIT') || '1');
+    props.setProperty('NEXT_PERMIT', String(n + 1));
+    var permitNo = 'ASG-' + ('00000' + n).slice(-5);   // permit number, given straight away
     var ref = 'APP-' + Utilities.formatDate(new Date(), 'Pacific/Palau', 'yyMMdd') + '-' + randomCode_(5);
     var key = Utilities.getUuid().replace(/-/g, '');
-    sh.appendRow([new Date(), ref, key, 'Pending', '', '', '',
+    sh.appendRow([new Date(), ref, key, 'Pending payment', permitNo, '', '',
       clean_(d.fullName, 120), clean_(d.email, 160), clean_(d.phone, 40), clean_(d.nationality, 60), clean_(d.passport, 40),
       d.arrival, d.departure, Number(d.visitors) || 1, clean_(d.purpose, 60), clean_(d.travel, 40), clean_(d.accommodation, 120), clean_(d.notes, 800)]);
     var link = SITE_URL + 'permit-status.html?ref=' + encodeURIComponent(ref) + '&key=' + key;
     try {
       MailApp.sendEmail({
         to: d.email,
-        subject: 'Angaur State visitor permit application ' + ref,
+        subject: 'Angaur State visitor permit ' + permitNo + ' (pending payment)',
         htmlBody: '<p>Dear ' + esc_(d.fullName) + ',</p><p>Your application for an Angaur State visitor permit has been received.</p>' +
-          '<p><b>Reference:</b> ' + ref + '<br><b>Status:</b> Pending review<br><b>Dates:</b> ' + d.arrival + ' to ' + d.departure + '</p>' +
-          '<p>This is a receipt, not a permit. Check your status here: <a href="' + link + '">' + link + '</a></p>' +
-          '<p>Your permit card will appear at that link once the State Government office approves your application.</p><p>Angaur State Government</p>'
+          '<p><b>Permit No.:</b> ' + permitNo + '<br><b>Reference No.:</b> ' + ref + '<br><b>Status:</b> Pending payment<br><b>Dates:</b> ' + d.arrival + ' to ' + d.departure + '</p>' +
+          '<p><b>Next step:</b> ' + esc_(PAYMENT_NOTE) + '</p>' +
+          '<p>Your permit card will appear here once payment is confirmed: <a href="' + link + '">' + link + '</a></p><p>Angaur State Government</p>'
       });
-      if (OFFICE_EMAIL) MailApp.sendEmail(OFFICE_EMAIL, 'New permit application ' + ref, d.fullName + ' — ' + d.arrival + ' to ' + d.departure + '\n' + SpreadsheetApp.getActiveSpreadsheet().getUrl());
+      if (OFFICE_EMAIL) MailApp.sendEmail(OFFICE_EMAIL, 'New permit application ' + permitNo + ' / ' + ref, d.fullName + ' — ' + d.arrival + ' to ' + d.departure + '\n' + SpreadsheetApp.getActiveSpreadsheet().getUrl());
     } catch (mailErr) { /* the application is saved even if email fails */ }
-    return json_({ ok: true, ref: ref, key: key });
+    return json_({ ok: true, ref: ref, key: key, permitNo: permitNo });
   } catch (x) {
     return json_({ ok: false, error: 'The application could not be saved. Please try again.' });
   } finally {
@@ -83,12 +89,12 @@ function doGet(e) {
   if (p.action === 'ping') return json_({ ok: true });
   var row = find_(p.ref, p.key, p.email);
   if (!row) return json_({ ok: false, error: 'No application matches that reference and key.' });
-  var v = row.values, status = v[3] || 'Pending';
+  var v = row.values, status = (!v[3] || v[3] === 'Pending') ? 'Pending payment' : v[3];
   var out = {
     ok: true, ref: v[1], key: v[2], status: status, name: v[7], arrival: fmt_(v[12]), departure: fmt_(v[13]),
-    visitors: v[14], submitted: fmt_(v[0])
+    visitors: v[14], submitted: fmt_(v[0]), permitNo: v[4] || v[1]
   };
-  if (status === 'Approved') { out.permitNo = v[4]; out.decided = fmt_(v[5]); }
+  if (status === 'Approved') { out.decided = fmt_(v[5]); }
   if (status === 'Rejected') { out.note = v[6]; out.decided = fmt_(v[5]); }
   return json_(out);
 }
@@ -110,7 +116,7 @@ function decide_(status) {
     var resp = ui.prompt('Reason shown to the applicant (optional)', ui.ButtonSet.OK_CANCEL);
     if (resp.getSelectedButton() !== ui.Button.OK) return;
     note = resp.getResponseText();
-  } else if (ui.alert('Approve ' + v[7] + ' (' + v[1] + ')?', ui.ButtonSet.YES_NO) !== ui.Button.YES) return;
+  } else if (ui.alert('Payment received from ' + v[7] + ' (' + v[1] + ')? This issues their permit card.', ui.ButtonSet.YES_NO) !== ui.Button.YES) return;
   var permitNo = v[4];
   if (status === 'Approved' && !permitNo) {
     var props = PropertiesService.getScriptProperties();
@@ -118,7 +124,7 @@ function decide_(status) {
     permitNo = 'ASG-' + ('00000' + n).slice(-5);
     props.setProperty('NEXT_PERMIT', String(n + 1));
   }
-  sh.getRange(r, 4, 1, 4).setValues([[status, status === 'Approved' ? permitNo : '', new Date(), note]]);
+  sh.getRange(r, 4, 1, 4).setValues([[status, permitNo || '', new Date(), note]]);
   var link = SITE_URL + 'permit-status.html?ref=' + encodeURIComponent(v[1]) + '&key=' + v[2];
   try {
     MailApp.sendEmail({
@@ -147,7 +153,7 @@ function find_(ref, key, email) {
   if (last < 2) return null;
   var vals = sh.getRange(2, 1, last - 1, HEADERS.length).getValues();
   for (var i = 0; i < vals.length; i++) {
-    if (vals[i][1] !== ref) continue;
+    if (vals[i][1] !== ref && String(vals[i][4]).toUpperCase() !== ref) continue;
     if ((key && vals[i][2] === key) || (email && String(vals[i][8]).trim().toLowerCase() === email)) return { row: i + 2, values: vals[i] };
   }
   return null;
