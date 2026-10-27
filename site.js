@@ -472,8 +472,8 @@
 
   document.addEventListener('click', function (e) {
     if (!editing || e.target.closest('#ed-bar') || e.target.closest('#ed-modal') || e.target.closest('#ed-sel')) return;
-    var heroBtn = e.target.closest('.ed-hero-btn');
-    if (heroBtn) { e.preventDefault(); var hi = heroBtn.parentElement.querySelector('.page-hero-img'); if (hi) { select(hi); openModal('img', hi); } return; }
+    var bgBtn = e.target.closest('[data-bgact]');
+    if (bgBtn) { e.preventDefault(); bgAction(bgBtn); return; }
     var add = e.target.closest('[data-add]');
     if (add) {
       snapshot();
@@ -562,15 +562,54 @@
     flash('Downloaded ' + name + ' (a backup copy).');
   }
 
-  /* ---------- background photo buttons on page headers ---------- */
+  /* ---------- background photos: change the photo and how strongly it shows ---------- */
+  var BG_LOOKS = [['clear', 'Clear'], ['', 'Normal'], ['strong', 'Faded'], ['none', 'No photo']];
+  function bgParts(s) {
+    if (s.classList.contains('page-hero')) return { img: s.querySelector(':scope > .page-hero-img'), shade: s.querySelector(':scope > .page-hero-shade') };
+    var shade = null, img = null;
+    s.querySelectorAll('div.absolute.inset-0').forEach(function (d) { if (!shade && /gradient/.test(d.getAttribute('style') || '')) shade = d; });
+    if (!shade) return null;
+    var box = shade.parentElement;
+    for (var c = box.firstElementChild; c; c = c.nextElementSibling) {
+      if (c === shade) break;
+      var im = c.tagName === 'IMG' ? c : c.querySelector('img');
+      if (im && /absolute/.test(c.className)) img = im;
+    }
+    return img ? { img: img, shade: shade } : null;
+  }
   function addHeroButtons() {
-    document.querySelectorAll('#app .page-hero').forEach(function (s) {
-      if (s.querySelector(':scope > .ed-hero-btn')) return;
-      var b = document.createElement('button');
-      b.type = 'button'; b.className = 'ed-hero-btn ed-only'; b.setAttribute('contenteditable', 'false');
-      b.textContent = 'Change background photo';
-      s.appendChild(b);
+    document.querySelectorAll('#app section').forEach(function (s) {
+      if (s.querySelector('.ed-bg-panel')) return;
+      var p = bgParts(s); if (!p || !p.img) return;
+      p.img.setAttribute('data-bg-img', '');
+      if (p.shade) { p.shade.setAttribute('data-bg-shade', ''); if (/rgba\(1,\s*41/.test(p.shade.getAttribute('style') || '')) s.setAttribute('data-bg-dark', ''); }
+      var box = p.shade ? p.shade.parentElement : s;
+      var panel = document.createElement('div');
+      panel.className = 'ed-bg-panel ed-only'; panel.setAttribute('contenteditable', 'false');
+      var html = '<button type="button" data-bgact="photo" class="ed-bg-main">Change background photo</button><span class="ed-bg-looks" role="group" aria-label="How the photo shows">';
+      BG_LOOKS.forEach(function (l) { html += '<button type="button" data-bgact="look" data-look="' + l[0] + '">' + l[1] + '</button>'; });
+      panel.innerHTML = html + '</span>';
+      box.appendChild(panel);
+      markLook(s);
     });
+  }
+  function markLook(s) {
+    var cur = s.getAttribute('data-bg') || '';
+    s.querySelectorAll('.ed-bg-panel [data-look]').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-look') === cur ? 'true' : 'false'); });
+  }
+  function bgAction(btn) {
+    var s = btn.closest('section'); if (!s) return;
+    var img = s.querySelector('[data-bg-img]');
+    if (btn.getAttribute('data-bgact') === 'photo') {
+      if (img) { if (s.getAttribute('data-bg') === 'none') { snapshot(); s.removeAttribute('data-bg'); markLook(s); } select(img); openModal('img', img); }
+      return;
+    }
+    var look = btn.getAttribute('data-look');
+    if ((s.getAttribute('data-bg') || '') === look) return;
+    snapshot();
+    if (look) s.setAttribute('data-bg', look); else s.removeAttribute('data-bg');
+    markLook(s); autosave();
+    flash({ clear: 'Photo shows clearly', '': 'Photo back to normal', strong: 'Photo faded into the background', none: 'Photo hidden (it is kept, choose another look to bring it back)' }[look]);
   }
 
   /* ---------- the page as it should be saved ---------- */
