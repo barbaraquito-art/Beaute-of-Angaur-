@@ -15,7 +15,7 @@
     if (raw) {
       var draft = JSON.parse(raw);
       if (draft && draft.base === BASE && typeof draft.html === 'string') appEl.innerHTML = draft.html;
-      else localStorage.removeItem(EDITOR_KEY);
+      else { localStorage.setItem('anguar-older:' + PAGE, raw); localStorage.removeItem(EDITOR_KEY); }
     }
   } catch (e) {}
 
@@ -158,6 +158,7 @@
     '<button type="button" data-a="publish" hidden>Publish to website</button>' +
     '<button type="button" data-a="save" hidden>Download page</button>' +
     '<button type="button" data-a="reset" hidden>Start over</button>' +
+    '<button type="button" data-a="older" hidden>Bring back my earlier changes</button>' +
     '<span data-msg></span>';
   if (isOwner) document.body.appendChild(bar);
   var msg = bar.querySelector('[data-msg]');
@@ -256,6 +257,7 @@
     var m = c.querySelector('[data-mobile-menu]'); if (m) { m.style.opacity = ''; m.style.pointerEvents = ''; if (!m.getAttribute('style')) m.removeAttribute('style'); }
     return c.innerHTML;
   }
+  function olderDraft() { try { var o = JSON.parse(localStorage.getItem('anguar-older:' + PAGE) || 'null'); return o && typeof o.html === 'string' ? o : null; } catch (e) { return null; } }
   function autosave() {
     if (!editing) return;
     try { localStorage.setItem(EDITOR_KEY, JSON.stringify({ base: BASE, html: cleanHTML() })); flash('Saved in this browser'); }
@@ -444,7 +446,8 @@
     ['save', 'reset', 'undo', 'redo', 'publish'].forEach(function (k) { bar.querySelector('[data-a="' + k + '"]').hidden = !on; });
     document.querySelectorAll('#app .reveal').forEach(function (el) { el.classList.add('reveal-in'); });
     applyEditable(on);
-    if (on) { addGridButtons(); addHeroButtons(); updateHistoryButtons(); flash(HINT); }
+    bar.querySelector('[data-a="older"]').hidden = !(on && olderDraft());
+    if (on) { addGridButtons(); addHeroButtons(); updateHistoryButtons(); flash(olderDraft() ? 'You have earlier changes that were not published. Click "Bring back my earlier changes" to put them back.' : HINT); }
     else {
       deselect();
       document.querySelectorAll('#app .ed-only').forEach(function (el) { el.remove(); });
@@ -462,6 +465,14 @@
     else if (a === 'redo') redo();
     else if (a === 'save') download();
     else if (a === 'publish') publish();
+    else if (a === 'older') {
+      var od = olderDraft(); if (!od) { b.hidden = true; return; }
+      if (confirm('The website was updated after you made these changes. Put your earlier changes back on this page? (Undo takes them off again.)')) {
+        snapshot(); restore(od.html);
+        try { localStorage.removeItem('anguar-older:' + PAGE); } catch (err) {}
+        b.hidden = true; flash('Earlier changes are back. Click Publish to website to make them live.');
+      }
+    }
     else if (a === 'reset') {
       if (confirm('Throw away every change on this page and go back to the version on the website?')) {
         try { localStorage.removeItem(EDITOR_KEY); } catch (err) {}

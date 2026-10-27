@@ -187,3 +187,4 @@ body.editing .ed-bg-main{border-radius:50px;background:#123d2a;color:#fff;paddin
 body.editing .ed-bg-looks{display:inline-flex;background:#fff;border-radius:50px;padding:3px;box-shadow:0 6px 18px rgba(0,0,0,.2)}
 body.editing .ed-bg-looks button{background:transparent;color:#123d2a;border-radius:50px;padding:6px 11px}
 body.editing .ed-bg-looks button[aria-pressed="true"]{background:#efa04b;color:#123d2a}
+#ed-bar button[data-a=older]{background:#efa04b;color:#123d2a}
