@@ -11,3 +11,34 @@
 body.editing [contenteditable=true]{outline:1.5px dashed rgba(239,160,75,.8);outline-offset:3px;border-radius:3px;cursor:text}
 body.editing [contenteditable=true]:focus{outline:2px solid #efa04b}
 body.editing #app img{cursor:pointer;outline:2px dashed rgba(29,107,71,.7);outline-offset:-2px}
+#ed-bar a{border-radius:50px;padding:10px 16px;background:#fff;color:#123d2a;text-decoration:none;box-shadow:0 6px 20px rgba(0,0,0,.18)}
+.media-grid{margin-top:3rem;display:grid;gap:20px;grid-template-columns:repeat(auto-fill,minmax(min(100%,280px),1fr))}
+.media-grid:empty{display:none}
+.media-item{position:relative;margin:0;overflow:hidden;border-radius:16px;background:#fff;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.media-item img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;background:#f2eee6}
+.media-frame{position:relative;aspect-ratio:16/9;background:#123d2a}
+.media-frame iframe,.media-frame video{position:absolute;inset:0;width:100%;height:100%;border:0;object-fit:cover}
+.media-empty{position:absolute;inset:0;display:grid;place-items:center;color:#cfe0d6;font-size:14px}
+.media-item figcaption{padding:12px 16px;font-size:14px;line-height:1.6;color:#5b6b63}
+.media-item figcaption:empty{display:none}
+body.editing .media-item figcaption:empty{display:block;min-height:1.6em}
+body.editing .media-frame::after{content:"Tap to change video";position:absolute;inset:0;display:grid;place-items:center;background:rgba(18,61,42,.6);color:#fff;font:600 14px "Plus Jakarta Sans",system-ui,sans-serif;cursor:pointer;z-index:2}
+.ed-tools{position:absolute;top:8px;right:8px;z-index:3;display:flex;gap:4px}
+.ed-tools button{border:0;border-radius:50px;background:#123d2a;color:#fff;font:600 12px "Plus Jakarta Sans",system-ui,sans-serif;padding:7px 11px;cursor:pointer;min-width:32px}
+.ed-add{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+.ed-add button{border:1.5px dashed #1d6b47;background:transparent;color:#1d6b47;border-radius:50px;padding:11px 18px;font:600 14px "Plus Jakarta Sans",system-ui,sans-serif;cursor:pointer}
+#ed-modal{position:fixed;inset:0;z-index:300;display:none;align-items:flex-end;justify-content:center;padding:12px;background:rgba(10,25,18,.55)}
+#ed-modal.on{display:flex}
+@media (min-width:640px){#ed-modal{align-items:center}}
+#ed-modal .ed-sheet{width:100%;max-width:500px;max-height:88vh;overflow:auto;background:#faf7f2;border-radius:18px;padding:22px;font-family:"Plus Jakarta Sans",system-ui,sans-serif;color:#16261e}
+#ed-modal h3{font:800 20px Outfit,system-ui,sans-serif;margin:0 0 6px}
+#ed-modal .ed-hint{font-size:13.5px;color:#5b6b63;margin:0 0 6px;line-height:1.6}
+#ed-modal label{display:block;font-size:13px;font-weight:600;margin:14px 0 6px}
+#ed-modal input{width:100%;box-sizing:border-box;padding:12px 14px;border:1px solid rgba(0,0,0,.12);border-radius:12px;font:inherit;font-size:15px;background:#fff}
+#ed-modal input:focus{outline:2px solid #efa04b;border-color:transparent}
+#ed-modal .ed-upload{margin-top:10px;border:1.5px dashed #1d6b47;background:transparent;color:#1d6b47;border-radius:50px;padding:10px 16px;font:600 13.5px inherit;font-family:inherit;cursor:pointer}
+#ed-modal .ed-preview{display:block;margin-top:14px;width:100%;max-height:180px;object-fit:cover;border-radius:12px}
+#ed-modal .ed-error{color:#b42318;font-size:13px;margin:10px 0 0}
+#ed-modal .ed-row{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+#ed-modal .ed-row button{border:0;border-radius:50px;padding:11px 20px;font:600 14px inherit;font-family:inherit;cursor:pointer;background:#f2eee6;color:#123d2a}
+#ed-modal .ed-row .ed-go{background:#123d2a;color:#fff}
