@@ -262,12 +262,8 @@ body.editing .ed-bg-looks button[aria-pressed="true"]{background:#efa04b;color:#
 .tr-section h2{color:#fff!important}
 .tr-section .max-w-3xl p{color:rgba(255,255,255,.82)!important}
 .tr-section .eyebrow{color:#f3c98c!important}
-.tr-card{overflow:hidden;position:relative;padding-top:208px!important}
-.tr-card.tr-air,.tr-card.tr-sea{background-repeat:no-repeat;background-position:top center;background-size:auto 270px;background-color:#fff}
-@media (min-width:768px){.tr-card.tr-air,.tr-card.tr-sea{background-size:100% auto}}
-.tr-card.tr-air{background-image:linear-gradient(180deg,rgba(255,255,255,0) 0,rgba(255,255,255,0) 120px,rgba(255,255,255,.7) 200px,#fff 268px),url(images/tr-plane.webp)}
-.tr-card.tr-sea{background-image:linear-gradient(180deg,rgba(255,255,255,0) 0,rgba(255,255,255,0) 120px,rgba(255,255,255,.7) 200px,#fff 268px),url(images/tr-boat.webp)}
-@media (min-width:768px){.tr-card{padding-top:215px!important}
-.tr-card.tr-air{background-image:linear-gradient(180deg,rgba(255,255,255,0) 0,rgba(255,255,255,0) 110px,rgba(255,255,255,.72) 195px,#fff 262px),url(images/tr-plane.webp)}
-.tr-card.tr-sea{background-image:linear-gradient(180deg,rgba(255,255,255,0) 0,rgba(255,255,255,0) 110px,rgba(255,255,255,.72) 195px,#fff 262px),url(images/tr-boat.webp)}}
+.tr-card{overflow:hidden;position:relative;padding-top:210px!important}
+.tr-card.tr-air,.tr-card.tr-sea{background-repeat:no-repeat;background-position:top center;background-size:100% 100%,max(100%,580px) auto;background-color:#fff}
+.tr-card.tr-air{background-image:linear-gradient(180deg,rgba(255,255,255,0) 0,rgba(255,255,255,0) 115px,rgba(255,255,255,.72) 195px,#fff 258px),url(images/tr-plane.webp)}
+.tr-card.tr-sea{background-image:linear-gradient(180deg,rgba(255,255,255,0) 0,rgba(255,255,255,0) 115px,rgba(255,255,255,.72) 195px,#fff 258px),url(images/tr-boat.webp)}
 .tr-section .tr-card{box-shadow:0 18px 50px rgba(0,0,0,.28)}
