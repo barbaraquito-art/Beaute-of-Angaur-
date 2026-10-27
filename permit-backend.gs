@@ -23,10 +23,11 @@ var HEADERS = ['Submitted', 'Reference', 'Access key', 'Status', 'Permit No.', '
   'Number of visitors', 'Purpose of visit', 'Travel method', 'Accommodation', 'Notes'];
 var STATUSES = ['Pending payment', 'Approved', 'Rejected'];
 // Shown to applicants on their receipt email. Edit to change the office or contact names.
-var PAYMENT_NOTE = 'Please visit the Medalaii Office in Koror and see Teresa or Barbara to pay for your permit. Bring your permit number.';
+var PAYMENT_NOTE = 'Please visit the Medalii Office in Koror and see Teresa or Barbara to pay for your permit. Bring your permit number.';
 
 function setup() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
+  ss.setSpreadsheetTimeZone('Pacific/Palau');   // dates are read and shown in Palau time
   var sh = ss.getSheetByName(SHEET_NAME) || ss.insertSheet(SHEET_NAME);
   sh.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]).setFontWeight('bold').setBackground('#123d2a').setFontColor('#ffffff');
   sh.setFrozenRows(1);
@@ -170,6 +171,6 @@ function validate_(d) {
 }
 function clean_(s, max) { return String(s || '').replace(/[\u0000-\u001f]/g, ' ').replace(/^[=+\-@]/, "'$&").trim().slice(0, max); }
 function esc_(s) { return String(s || '').replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
-function fmt_(v) { return v instanceof Date ? Utilities.formatDate(v, 'Pacific/Palau', 'yyyy-MM-dd') : String(v || ''); }
+function fmt_(v) { return v instanceof Date ? Utilities.formatDate(v, SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone(), 'yyyy-MM-dd') : String(v || ''); }
 function randomCode_(n) { var c = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', s = ''; for (var i = 0; i < n; i++) s += c.charAt(Math.floor(Math.random() * c.length)); return s; }
 function json_(o) { return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON); }

@@ -197,3 +197,8 @@ body.editing .ed-bg-looks button[aria-pressed="true"]{background:#efa04b;color:#
 #ps-card.is-pending .pc-qr{display:none}
 .pc-row{padding-bottom:.3cqw}
 .pc-text{margin-top:.5cqw}
+/* permit card: the State flag, faded, behind the details */
+.pc-body{position:relative;isolation:isolate}
+.pc-body::before{content:"";position:absolute;inset:0;z-index:-1;background:url(angaur-flag.png) center/cover no-repeat;opacity:.16}
+.pc-seal{opacity:.95}
+.pc-body::before{-webkit-print-color-adjust:exact;print-color-adjust:exact}
