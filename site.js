@@ -439,6 +439,18 @@
     }
   });
 
+  /* The browser may show a copy of the page that is up to 10 minutes old. Before editing,
+     make sure this is the newest version on the website, so publishing never puts back an old page. */
+  function freshUrl() { return location.pathname + '?edit&fresh=' + Date.now(); }
+  function checkFresh() {
+    if (/[?&]fresh=/.test(location.search)) return;
+    fetch(location.pathname + '?fresh=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.ok ? r.text() : null; }).then(function (t) {
+      if (!t || appHashOf(t) === BASE || !editing) return;
+      flash('Loading the newest version of this page…');
+      if (past.length) autosave();
+      setTimeout(function () { location.replace(freshUrl()); }, 600);
+    }).catch(function () {});
+  }
   function setEditing(on) {
     editing = on;
     document.body.classList.toggle('editing', on);
@@ -447,7 +459,7 @@
     document.querySelectorAll('#app .reveal').forEach(function (el) { el.classList.add('reveal-in'); });
     applyEditable(on);
     bar.querySelector('[data-a="older"]').hidden = !(on && olderDraft());
-    if (on) { addGridButtons(); addHeroButtons(); updateHistoryButtons(); flash(olderDraft() ? 'You have earlier changes that were not published. Click "Bring back my earlier changes" to put them back.' : HINT); }
+    if (on) { checkFresh(); addGridButtons(); addHeroButtons(); updateHistoryButtons(); flash(olderDraft() ? 'You have earlier changes that were not published. Click "Bring back my earlier changes" to put them back.' : HINT); }
     else {
       deselect();
       document.querySelectorAll('#app .ed-only').forEach(function (el) { el.remove(); });
@@ -768,11 +780,11 @@
       var remoteHtml = textFromB64(r.content);
       if (appHashOf(remoteHtml) !== BASE) {
         return new Promise(function (res, rej) {
-          say('This page was changed on GitHub after you opened it.');
-          er.textContent = 'Publishing now will replace those newer changes with yours.'; er.hidden = false;
+          say('There is a newer version of this page on your website.');
+          er.textContent = 'You are editing an older copy. Load the newer page first; your changes here are kept and you can bring them back with "Bring back my earlier changes". Replacing would undo the newer changes.'; er.hidden = false;
           row.hidden = false;
-          row.innerHTML = '<button type="button" data-x="stop">Cancel</button><button type="button" class="ed-go" data-x="go">Publish anyway</button>';
-          row.querySelector('[data-x=stop]').onclick = function () { publishing = false; restoreSheet(); rej(null); };
+          row.innerHTML = '<button type="button" data-x="go">Replace it with mine</button><button type="button" class="ed-go" data-x="stop">Load the newer page (recommended)</button>';
+          row.querySelector('[data-x=stop]').onclick = function () { publishing = false; if (past.length) autosave(); location.replace(freshUrl()); rej(null); };
           row.querySelector('[data-x=go]').onclick = function () { er.hidden = true; row.hidden = true; res(); };
         });
       }

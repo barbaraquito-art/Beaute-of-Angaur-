@@ -1,7 +1,40 @@
 (function () {
   'use strict';
   var API = (window.ANGAUR_PERMIT_API || '').trim();
-  var RECENT = 'anguar-permit-recent';
+  /* Test mode (?test=1): the whole process runs in this browser only. Nothing is sent to
+     the State office, and every number and card is marked TEST so it can't be used as a permit. */
+  var TEST = /[?&]test=1(&|$)/.test(location.search);
+  var TEST_DB = 'anguar-permit-test';
+  function testDb(v) { try { if (v) localStorage.setItem(TEST_DB, JSON.stringify(v)); return JSON.parse(localStorage.getItem(TEST_DB) || '[]'); } catch (e) { return v || []; } }
+  function rnd(n, c) { var s = ''; for (var i = 0; i < n; i++) s += c.charAt(Math.floor(Math.random() * c.length)); return s; }
+  function apiPost(data) {
+    if (TEST) {
+      var db = testDb(), n = db.length + 1, now = new Date();
+      var rec = { ref: 'TEST-APP-' + rnd(5, 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'), key: rnd(32, '0123456789abcdef'), permitNo: 'TEST-' + ('000' + n).slice(-4),
+        status: 'Pending payment', name: data.fullName, email: data.email.toLowerCase(), arrival: data.arrival, departure: data.departure, visitors: data.visitors,
+        submitted: now.getFullYear() + '-' + ('0' + (now.getMonth() + 1)).slice(-2) + '-' + ('0' + now.getDate()).slice(-2) };
+      db.push(rec); testDb(db);
+      return Promise.resolve({ ok: true, ref: rec.ref, key: rec.key, permitNo: rec.permitNo });
+    }
+    return fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(data) }).then(function (r) { return r.json(); });
+  }
+  function apiGet(params) {
+    if (TEST) {
+      var q = new URLSearchParams(params), r = (q.get('ref') || '').toUpperCase();
+      var hit = testDb().filter(function (x) { return (x.ref === r || x.permitNo === r) && (x.key === q.get('key') || x.email === (q.get('email') || '').toLowerCase()); })[0];
+      return Promise.resolve(hit ? Object.assign({ ok: true }, hit) : { ok: false, error: 'No test application matches that number.' });
+    }
+    return fetch(API + (API.indexOf('?') >= 0 ? '&' : '?') + params, { cache: 'no-store' }).then(function (r) { return r.json(); });
+  }
+  if (TEST) API = API || 'test';
+  function testBanner(where) {
+    if (!TEST || !where) return;
+    var b = document.createElement('div');
+    b.className = 'pf-alert error ps-test-banner'; b.setAttribute('role', 'status');
+    b.innerHTML = '<b>TEST MODE.</b> Try the form as a visitor would. Nothing is sent to the State office, and test cards are marked TEST, so they are not valid permits. <a href="' + location.pathname.split('/').pop().replace(/^$/, 'permit.html') + '" class="font-semibold">Leave test mode</a>';
+    where.insertBefore(b, where.firstChild);
+  }
+  var RECENT = TEST ? 'anguar-permit-recent-test' : 'anguar-permit-recent';
   var $ = function (s, r) { return (r || document).querySelector(s); };
 
   function show(el, on) { if (el) el.hidden = !on; }
@@ -13,7 +46,7 @@
       localStorage.setItem(RECENT, JSON.stringify(list.slice(0, 5)));
     } catch (e) {}
   }
-  function statusUrl(ref, key) { return 'permit-status.html?ref=' + encodeURIComponent(ref) + '&key=' + encodeURIComponent(key); }
+  function statusUrl(ref, key) { return 'permit-status.html?ref=' + encodeURIComponent(ref) + '&key=' + encodeURIComponent(key) + (TEST ? '&test=1' : ''); }
   function prettyDate(iso) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(iso || '')) return iso || '';
     var p = iso.split('-');
@@ -23,6 +56,7 @@
   /* ================= application form ================= */
   var form = $('#permit-form');
   if (form) {
+    testBanner(form.parentElement);
     var notReady = $('#pf-not-ready'), submitBtn = $('#pf-submit'), formErr = $('#pf-form-error');
     // the page may have been saved from the editor in either state, so always set both ways
     show(notReady, !API); submitBtn.disabled = !API; text(submitBtn, 'Submit application');
@@ -77,8 +111,7 @@
         website: form.website.value
       };
       submitBtn.disabled = true; text(submitBtn, 'Sending…');
-      fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(data) })
-        .then(function (r) { return r.json(); })
+      apiPost(data)
         .then(function (res) {
           if (!res || !res.ok) throw new Error((res && res.error) || 'The application could not be saved.');
           remember(res.ref, res.key);
@@ -100,13 +133,13 @@
     var lookup = $('#ps-lookup'), loading = $('#ps-loading'), errBox = $('#ps-error');
     var receipt = $('#ps-receipt'), cardWrap = $('#ps-card'), rejected = $('#ps-rejected'), notReady2 = $('#ps-not-ready');
     show(notReady2, !API);
+    testBanner(statusRoot);
 
     function load(params) {
       if (!API) { show(notReady2, true); show(lookup, false); return; }
       show(loading, true); show(errBox, false); show(lookup, false);
       [receipt, cardWrap, rejected].forEach(function (x) { show(x, false); });
-      fetch(API + (API.indexOf('?') >= 0 ? '&' : '?') + params, { cache: 'no-store' })
-        .then(function (r) { return r.json(); })
+      apiGet(params)
         .then(function (d) {
           show(loading, false);
           if (!d || !d.ok) throw new Error((d && d.error) || 'No application found.');
@@ -129,10 +162,21 @@
     function render(d) {
       var approved = d.status === 'Approved' && d.permitNo;
       if (d.status === 'Rejected') { fill(rejected, d); show(rejected, true); return; }
-      d.statusText = approved ? 'Paid · Valid' : 'Pending payment';
+      d.statusText = approved ? (TEST ? 'Test · paid' : 'Paid · Valid') : 'Pending payment';
       fill(cardWrap, d); show(cardWrap, true);
       cardWrap.classList.toggle('is-pending', !approved);
-      text(cardWrap.querySelector('[data-band]'), approved ? 'OFFICIAL VISITOR PERMIT' : 'PENDING PAYMENT · NOT YET VALID');
+      text(cardWrap.querySelector('[data-band]'), TEST ? (approved ? 'TEST CARD · NOT A VALID PERMIT' : 'TEST · PENDING PAYMENT') : approved ? 'OFFICIAL VISITOR PERMIT' : 'PENDING PAYMENT · NOT YET VALID');
+      if (TEST) { var okMsg = cardWrap.querySelector('.pf-alert.ok'); if (okMsg) okMsg.innerHTML = '<span class="ps-badge approved">Test</span> This is what the visitor sees after paying. A test card is not a valid permit.'; }
+      var sim = $('#ps-test-pay');
+      if (TEST && !approved && !sim) {
+        sim = document.createElement('div'); sim.id = 'ps-test-pay'; sim.className = 'pf-alert info';
+        sim.innerHTML = '<b>Test only:</b> see what the visitor gets after paying. <button type="button" class="pf-btn dark" style="margin-left:8px;padding:10px 18px">Mark as paid (test)</button>';
+        cardWrap.appendChild(sim);
+        sim.querySelector('button').addEventListener('click', function () {
+          var db = testDb(); db.forEach(function (x) { if (x.ref === d.ref) x.status = 'Approved'; }); testDb(db);
+          sim.remove(); show(receipt, false); load('ref=' + encodeURIComponent(d.ref) + '&key=' + encodeURIComponent(d.key));
+        });
+      }
       var qr = $('#pc-qr');
       if (qr) qr.innerHTML = '';
       if (approved) {
