@@ -42,3 +42,16 @@ body.editing .media-frame::after{content:"Tap to change video";position:absolute
 #ed-modal .ed-row{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
 #ed-modal .ed-row button{border:0;border-radius:50px;padding:11px 20px;font:600 14px inherit;font-family:inherit;cursor:pointer;background:#f2eee6;color:#123d2a}
 #ed-modal .ed-row .ed-go{background:#123d2a;color:#fff}
+#ed-bar button:disabled{opacity:.45;cursor:default}
+#ed-sel{position:fixed;z-index:250;display:none;align-items:center;gap:4px;flex-wrap:wrap;max-width:calc(100vw - 16px);padding:6px;border-radius:14px;background:#123d2a;box-shadow:0 10px 30px rgba(0,0,0,.25);font:600 12.5px "Plus Jakarta Sans",system-ui,sans-serif}
+#ed-sel.on{display:flex}
+#ed-sel [data-label]{color:#cfe0d6;padding:0 8px 0 6px;font-weight:500}
+#ed-sel button{border:0;border-radius:9px;background:rgba(255,255,255,.12);color:#fff;font:inherit;padding:8px 10px;min-width:34px;min-height:34px;cursor:pointer}
+#ed-sel button:hover{background:rgba(255,255,255,.22)}
+#ed-sel button.danger{background:#b42318}
+#ed-sel button[hidden]{display:none}
+body.editing .ed-selected{outline:3px solid #efa04b !important;outline-offset:3px}
+body.editing #app section:hover,body.editing #app article:hover{outline:1px dashed rgba(18,61,42,.25);outline-offset:-1px}
+.btn-amber,.btn-pill,header nav > div a{white-space:nowrap}
+header nav > a:first-child{min-width:0;flex-shrink:1}
+@media (min-width:1024px) and (max-width:1279px){header nav{gap:16px}header nav > div.lg\:flex{gap:18px}header nav > div.lg\:flex a{font-size:13.5px}}

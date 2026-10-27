@@ -1,13 +1,21 @@
 (function () {
   'use strict';
-  var EDITOR_KEY = 'anguar-edit:' + (location.pathname.split('/').pop() || 'index.html');
+  var PAGE = location.pathname.split('/').pop() || 'index.html';
+  var EDITOR_KEY = 'anguar-draft:' + PAGE;
+  function hash(s) { var x = 0x811c9dc5; for (var i = 0; i < s.length; i++) { x ^= s.charCodeAt(i); x = Math.imul(x, 0x01000193) >>> 0; } return x.toString(16); }
+  var appEl = document.getElementById('app');
+  var BASE = appEl ? hash(appEl.innerHTML) : '';
 
-  /* ---------- restore this page's saved edits (this browser only) ---------- */
+  /* ---------- restore this page's draft (this browser only) ----------
+     A draft is reused only if the published page has not changed since the
+     draft was started, so an upload to GitHub always wins over an old draft. */
   try {
-    var saved = localStorage.getItem(EDITOR_KEY);
-    if (saved) {
-      var root = document.getElementById('app');
-      if (root) root.innerHTML = saved;
+    localStorage.removeItem('anguar-edit:' + PAGE);
+    var raw = localStorage.getItem(EDITOR_KEY);
+    if (raw) {
+      var draft = JSON.parse(raw);
+      if (draft && draft.base === BASE && typeof draft.html === 'string') appEl.innerHTML = draft.html;
+      else localStorage.removeItem(EDITOR_KEY);
     }
   } catch (e) {}
 
@@ -145,8 +153,10 @@
   bar.innerHTML =
     '<a data-a="hub" href="editor.html">Editor</a>' +
     '<button type="button" data-a="edit">Edit page</button>' +
+    '<button type="button" data-a="undo" hidden aria-label="Undo">↶ Undo</button>' +
+    '<button type="button" data-a="redo" hidden aria-label="Redo">↷ Redo</button>' +
     '<button type="button" data-a="save" hidden>Download page</button>' +
-    '<button type="button" data-a="reset" hidden>Undo all</button>' +
+    '<button type="button" data-a="reset" hidden>Start over</button>' +
     '<span data-msg></span>';
   if (isOwner) document.body.appendChild(bar);
   var msg = bar.querySelector('[data-msg]');
@@ -216,11 +226,12 @@
   });
   modal.querySelector('[data-apply]').addEventListener('click', function () {
     var val = mData || mUrl.value.trim();
+    if (val) snapshot();
     if (!val) { mErr.textContent = mKind === 'img' ? 'Paste a photo link or upload a photo first.' : 'Paste a video link or upload a clip first.'; mErr.hidden = false; return; }
     if (mKind === 'img') { mTarget.src = val; mTarget.removeAttribute('srcset'); mTarget.alt = mAlt.value; }
     else { mTarget.setAttribute('data-video', val); renderVideo(mTarget); }
     if (mDone) mDone(true);
-    closeModal(); refreshGrids(); autosave();
+    closeModal(); refreshGrids(); autosave(); placeTools();
   });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && modal.classList.contains('on')) { if (mDone) mDone(false); closeModal(); } });
 
@@ -230,6 +241,8 @@
     c.querySelectorAll('.reveal-in').forEach(function (el) { el.classList.remove('reveal-in'); });
     c.querySelectorAll('[data-poi-ready]').forEach(function (el) { el.removeAttribute('data-poi-ready'); });
     c.querySelectorAll('.ed-only').forEach(function (el) { el.remove(); });
+    c.querySelectorAll('.ed-selected').forEach(function (el) { el.classList.remove('ed-selected'); if (!el.getAttribute('class')) el.removeAttribute('class'); });
+    c.querySelectorAll('img[draggable]').forEach(function (el) { el.removeAttribute('draggable'); });
     c.querySelectorAll('.media-item[data-video] .media-frame').forEach(function (el) { el.innerHTML = ''; });
     c.querySelectorAll('[data-media-empty]').forEach(function (el) { el.style.display = ''; if (!el.getAttribute('style')) el.removeAttribute('style'); });
     c.querySelectorAll('ul > li[style*="display"]').forEach(function (el) { el.style.display = ''; if (!el.getAttribute('style')) el.removeAttribute('style'); });
@@ -238,7 +251,7 @@
   }
   function autosave() {
     if (!editing) return;
-    try { localStorage.setItem(EDITOR_KEY, cleanHTML()); flash('Saved in this browser'); }
+    try { localStorage.setItem(EDITOR_KEY, JSON.stringify({ base: BASE, html: cleanHTML() })); flash('Saved in this browser'); }
     catch (e) { flash('Too big to save here. Use Download page.'); }
   }
 
@@ -266,13 +279,9 @@
   }
 
   var TEXT_SEL = 'h1,h2,h3,h4,p,li > a,span,label,figcaption,button:not([aria-label])';
-  function setEditing(on) {
-    editing = on;
-    document.body.classList.toggle('editing', on);
-    bar.querySelector('[data-a="edit"]').textContent = on ? 'Done' : 'Edit page';
-    bar.querySelector('[data-a="save"]').hidden = !on;
-    bar.querySelector('[data-a="reset"]').hidden = !on;
-    document.querySelectorAll('#app .reveal').forEach(function (el) { el.classList.add('reveal-in'); });
+  var MULTILINE = 'P,LI,FIGCAPTION';
+
+  function applyEditable(on) {
     document.querySelectorAll('#app ' + TEXT_SEL.split(',').join(',#app ')).forEach(function (el) {
       if (el.closest('svg') || el.closest('.ed-only')) return;
       var hasText = [].some.call(el.childNodes, function (n) { return n.nodeType === 3 && n.textContent.trim(); });
@@ -284,21 +293,169 @@
       if (!hasText) return;
       if (on) a.setAttribute('contenteditable', 'true'); else a.removeAttribute('contenteditable');
     });
-    if (on) { addGridButtons(); flash(HINT); }
+    document.querySelectorAll('#app img').forEach(function (im) { im.draggable = !on; });
+  }
+
+  /* ---------- undo / redo ---------- */
+  var past = [], future = [];
+  function snapshot() {
+    var s = cleanHTML();
+    if (past.length && past[past.length - 1] === s) return;
+    past.push(s); if (past.length > 60) past.shift();
+    future = [];
+    updateHistoryButtons();
+  }
+  function restore(html) {
+    deselect();
+    document.getElementById('app').innerHTML = html;
+    document.querySelectorAll('#app .reveal').forEach(function (el) { el.classList.add('reveal-in'); });
+    applyEditable(true); addGridButtons(); renderAllVideos(); setupPOI(); refreshGrids();
+    autosave();
+  }
+  function undo() { if (!past.length) { flash('Nothing to undo'); return; } future.push(cleanHTML()); restore(past.pop()); updateHistoryButtons(); flash('Undone'); }
+  function redo() { if (!future.length) { flash('Nothing to redo'); return; } past.push(cleanHTML()); restore(future.pop()); updateHistoryButtons(); flash('Redone'); }
+  function updateHistoryButtons() {
+    bar.querySelector('[data-a="undo"]').disabled = !past.length;
+    bar.querySelector('[data-a="redo"]').disabled = !future.length;
+  }
+
+  /* ---------- selected item toolbar: size and remove ---------- */
+  var tools = document.createElement('div');
+  tools.id = 'ed-sel';
+  tools.setAttribute('contenteditable', 'false');
+  tools.setAttribute('role', 'toolbar');
+  tools.setAttribute('aria-label', 'Selected item');
+  tools.innerHTML =
+    '<span data-label></span>' +
+    '<button type="button" data-s="smaller" aria-label="Make smaller">A−</button>' +
+    '<button type="button" data-s="bigger" aria-label="Make bigger">A+</button>' +
+    '<button type="button" data-s="reset" title="Back to original size">Original size</button>' +
+    '<button type="button" data-s="parent" title="Select the box around this">Select box</button>' +
+    '<button type="button" data-s="replace">Change photo</button>' +
+    '<button type="button" data-s="remove" class="danger">Remove</button>' +
+    '<button type="button" data-s="close" aria-label="Close">✕</button>';
+  if (isOwner) document.body.appendChild(tools);
+  var selected = null;
+  var NAMES = { H1: 'Title', H2: 'Heading', H3: 'Heading', H4: 'Heading', P: 'Paragraph', A: 'Link or button', SPAN: 'Text', LI: 'List item', IMG: 'Photo', FIGURE: 'Gallery item', FIGCAPTION: 'Caption', BUTTON: 'Button', SECTION: 'Section', ARTICLE: 'Card', UL: 'List' };
+  function labelFor(el) {
+    if (el.tagName === 'DIV') return el.querySelector('img') && !el.querySelector('h1,h2,h3,p') ? 'Photo box' : 'Box';
+    return NAMES[el.tagName] || 'Item';
+  }
+  function select(el) {
+    if (!el || el === selected) { placeTools(); return; }
+    deselect();
+    selected = el; el.classList.add('ed-selected');
+    var isImg = el.tagName === 'IMG';
+    tools.querySelector('[data-label]').textContent = labelFor(el);
+    tools.querySelector('[data-s="replace"]').hidden = !isImg;
+    tools.querySelector('[data-s="smaller"]').textContent = isImg ? '−' : 'A−';
+    tools.querySelector('[data-s="bigger"]').textContent = isImg ? '+' : 'A+';
+    var p = el.parentElement;
+    tools.querySelector('[data-s="parent"]').hidden = !p || p.id === 'app' || p.tagName === 'MAIN' || p.tagName === 'BODY';
+    tools.classList.add('on'); placeTools();
+  }
+  function deselect() {
+    if (selected) selected.classList.remove('ed-selected');
+    selected = null; tools.classList.remove('on');
+  }
+  function placeTools() {
+    if (!selected || !document.contains(selected)) { deselect(); return; }
+    var r = selected.getBoundingClientRect();
+    var h = tools.offsetHeight || 44, w = tools.offsetWidth || 300;
+    var top = r.top - h - 8;
+    if (top < 80) top = Math.min(window.innerHeight - h - 70, r.bottom + 8);
+    var left = Math.max(8, Math.min(window.innerWidth - w - 8, r.left));
+    tools.style.top = Math.max(8, top) + 'px'; tools.style.left = left + 'px';
+  }
+  window.addEventListener('scroll', function () { if (selected) placeTools(); }, { passive: true });
+  window.addEventListener('resize', function () { if (selected) placeTools(); });
+
+  var TEXT_STEPS = [0.7, 0.8, 0.9, 1, 1.15, 1.3, 1.5, 1.75, 2];
+  var IMG_STEPS = [25, 35, 50, 65, 80, 100];
+  function resize(dir) {
+    var el = selected; if (!el) return;
+    snapshot();
+    if (el.tagName === 'IMG') {
+      var pos = getComputedStyle(el).position;
+      if (pos === 'absolute' || pos === 'fixed') { flash('This photo fills its whole area, so it can only be changed, not resized.'); past.pop(); updateHistoryButtons(); return; }
+      var cur = parseFloat(el.getAttribute('data-ed-w')) || 100;
+      var i = IMG_STEPS.indexOf(cur); if (i < 0) i = IMG_STEPS.length - 1;
+      i = Math.max(0, Math.min(IMG_STEPS.length - 1, i + dir));
+      var v = IMG_STEPS[i];
+      if (v === 100) { el.style.width = ''; el.style.marginInline = ''; el.removeAttribute('data-ed-w'); }
+      else { el.style.width = v + '%'; el.style.marginInline = 'auto'; el.setAttribute('data-ed-w', v); }
+      flash('Photo size ' + v + '%');
+    } else {
+      var f = parseFloat(el.getAttribute('data-ed-f')) || 1;
+      var j = TEXT_STEPS.indexOf(f); if (j < 0) j = 3;
+      j = Math.max(0, Math.min(TEXT_STEPS.length - 1, j + dir));
+      var k = TEXT_STEPS[j];
+      if (k === 1) { el.style.zoom = ''; el.removeAttribute('data-ed-f'); }
+      else { el.style.zoom = String(k); el.setAttribute('data-ed-f', k); }
+      flash('Text size ' + Math.round(k * 100) + '%');
+    }
+    if (!el.getAttribute('style')) el.removeAttribute('style');
+    autosave(); placeTools();
+  }
+  function resetSize() {
+    var el = selected; if (!el) return;
+    snapshot();
+    el.style.zoom = ''; el.style.width = ''; el.style.marginInline = '';
+    ['data-ed-f', 'data-ed-w'].forEach(function (a) { el.removeAttribute(a); });
+    if (!el.getAttribute('style')) el.removeAttribute('style');
+    autosave(); placeTools(); flash('Back to original size');
+  }
+  function removeSelected() {
+    var el = selected; if (!el) return;
+    if (el.tagName === 'SECTION' || el.tagName === 'HEADER' || el.tagName === 'FOOTER') {
+      if (!confirm('Remove this whole section? You can bring it back with Undo.')) return;
+    }
+    snapshot(); deselect(); el.remove(); refreshGrids(); autosave();
+    flash('Removed. Tap Undo to bring it back.');
+  }
+  tools.addEventListener('mousedown', function (e) { e.preventDefault(); });
+  tools.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || !selected) return;
+    var s = b.getAttribute('data-s');
+    if (s === 'smaller') resize(-1);
+    else if (s === 'bigger') resize(1);
+    else if (s === 'reset') resetSize();
+    else if (s === 'remove') removeSelected();
+    else if (s === 'replace') openModal('img', selected);
+    else if (s === 'close') deselect();
+    else if (s === 'parent') {
+      var p = selected.parentElement;
+      while (p && p.id !== 'app' && p.children.length === 1 && p.parentElement && p.parentElement.id !== 'app' && p.tagName !== 'SECTION') p = p.parentElement;
+      if (p && p.id !== 'app') select(p);
+    }
+  });
+
+  function setEditing(on) {
+    editing = on;
+    document.body.classList.toggle('editing', on);
+    bar.querySelector('[data-a="edit"]').textContent = on ? 'Done' : 'Edit page';
+    ['save', 'reset', 'undo', 'redo'].forEach(function (k) { bar.querySelector('[data-a="' + k + '"]').hidden = !on; });
+    document.querySelectorAll('#app .reveal').forEach(function (el) { el.classList.add('reveal-in'); });
+    applyEditable(on);
+    if (on) { addGridButtons(); updateHistoryButtons(); flash(HINT); }
     else {
+      deselect();
       document.querySelectorAll('#app .ed-only').forEach(function (el) { el.remove(); });
       refreshGrids();
       editing = true; autosave(); editing = false;
     }
   }
 
+  bar.addEventListener('mousedown', function (e) { if (e.target.closest('[data-a="undo"],[data-a="redo"]')) e.preventDefault(); });
   bar.addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b) return;
     var a = b.dataset.a;
     if (a === 'edit') setEditing(!editing);
+    else if (a === 'undo') undo();
+    else if (a === 'redo') redo();
     else if (a === 'save') download();
     else if (a === 'reset') {
-      if (confirm('Undo every change on this page and go back to the version on the website?')) {
+      if (confirm('Throw away every change on this page and go back to the version on the website?')) {
         try { localStorage.removeItem(EDITOR_KEY); } catch (err) {}
         location.href = location.pathname + '?edit';
       }
@@ -306,51 +463,90 @@
   });
 
   document.addEventListener('click', function (e) {
-    if (!editing || e.target.closest('#ed-bar') || e.target.closest('#ed-modal')) return;
+    if (!editing || e.target.closest('#ed-bar') || e.target.closest('#ed-modal') || e.target.closest('#ed-sel')) return;
     var add = e.target.closest('[data-add]');
     if (add) {
+      snapshot();
       var grid = add.parentElement.previousElementSibling;
       var item = makeItem(add.getAttribute('data-add'));
       grid.appendChild(item);
       var cap = item.querySelector('figcaption'); cap.setAttribute('contenteditable', 'true');
       if (item.hasAttribute('data-video')) renderVideo(item);
       addTools(item); refreshGrids();
-      openModal(item.hasAttribute('data-video') ? 'video' : 'img', item.hasAttribute('data-video') ? item : item.querySelector('img'), function (ok) { if (!ok) { item.remove(); refreshGrids(); } });
+      openModal(item.hasAttribute('data-video') ? 'video' : 'img', item.hasAttribute('data-video') ? item : item.querySelector('img'), function (ok) { if (!ok) { item.remove(); past.pop(); updateHistoryButtons(); refreshGrids(); } });
       return;
     }
     var tool = e.target.closest('.ed-tools button');
     if (tool) {
       var it = tool.closest('.media-item'), t = tool.getAttribute('data-t');
-      if (t === 'del') { if (confirm('Delete this item from the gallery?')) { it.remove(); refreshGrids(); autosave(); } }
-      else if (t === 'left' && it.previousElementSibling) { it.parentNode.insertBefore(it, it.previousElementSibling); autosave(); }
-      else if (t === 'right' && it.nextElementSibling) { it.parentNode.insertBefore(it.nextElementSibling, it); autosave(); }
+      if (t === 'del') { snapshot(); deselect(); it.remove(); refreshGrids(); autosave(); flash('Removed. Tap Undo to bring it back.'); }
+      else if (t === 'left' && it.previousElementSibling) { snapshot(); it.parentNode.insertBefore(it, it.previousElementSibling); autosave(); }
+      else if (t === 'right' && it.nextElementSibling) { snapshot(); it.parentNode.insertBefore(it.nextElementSibling, it); autosave(); }
       return;
     }
     var vid = e.target.closest('#app .media-item[data-video] .media-frame');
-    if (vid) { e.preventDefault(); openModal('video', vid.closest('.media-item')); return; }
+    if (vid) { e.preventDefault(); select(vid.closest('.media-item')); openModal('video', vid.closest('.media-item')); return; }
     var a = e.target.closest('#app a');
     if (a) {
       e.preventDefault();
       if (e.detail === 2) {
         var h = prompt('Link address for this button or link:', a.getAttribute('href'));
-        if (h !== null) { a.setAttribute('href', h.trim()); autosave(); }
+        if (h !== null) { snapshot(); a.setAttribute('href', h.trim()); autosave(); }
       }
     }
     var img = e.target.closest('#app img');
-    if (img) { e.preventDefault(); openModal('img', img); }
+    if (img) { e.preventDefault(); select(img); return; }
+    var ce = e.target.closest('#app [contenteditable="true"]');
+    if (ce) { select(ce); return; }
+    var box = e.target.closest('#app section, #app article, #app li, #app figure');
+    if (box) select(box); else deselect();
   }, true);
 
-  document.addEventListener('input', function (e) { if (editing && !e.target.closest('#ed-modal')) { clearTimeout(autosave.t); autosave.t = setTimeout(autosave, 700); } });
+  /* one snapshot per editing burst, taken before the first change */
+  var typingFor = null;
+  document.addEventListener('beforeinput', function (e) {
+    if (!editing || !e.target.closest || !e.target.closest('#app')) return;
+    var host = e.target.closest('[contenteditable="true"]');
+    if (host !== typingFor) { snapshot(); typingFor = host; }
+  });
+  document.addEventListener('focusout', function () { typingFor = null; });
+
+  document.addEventListener('keydown', function (e) {
+    if (!editing) return;
+    var host = e.target.closest && e.target.closest('#app [contenteditable="true"]');
+    if ((e.ctrlKey || e.metaKey) && !e.altKey && (e.key === 'z' || e.key === 'Z')) { e.preventDefault(); if (e.shiftKey) redo(); else undo(); return; }
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || e.key === 'Y')) { e.preventDefault(); redo(); return; }
+    if (!host) {
+      if ((e.key === 'Delete' || e.key === 'Backspace') && selected && !modal.classList.contains('on')) { e.preventDefault(); removeSelected(); }
+      if (e.key === 'Escape') deselect();
+      return;
+    }
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (MULTILINE.indexOf(host.tagName) >= 0 && e.shiftKey) document.execCommand('insertLineBreak');
+      else host.blur();
+    }
+    if (e.key === 'Escape') host.blur();
+  });
+
+  /* stop dragging pieces of the page into the text */
+  ['dragstart', 'drop'].forEach(function (t) {
+    document.addEventListener(t, function (e) { if (editing && e.target.closest && e.target.closest('#app')) e.preventDefault(); }, true);
+  });
+
+  document.addEventListener('input', function (e) { if (editing && !e.target.closest('#ed-modal')) { clearTimeout(autosave.t); autosave.t = setTimeout(autosave, 700); placeTools(); } });
   document.addEventListener('paste', function (e) {
     if (!editing || e.target.closest('#ed-modal')) return; e.preventDefault();
-    document.execCommand('insertText', false, (e.clipboardData || window.clipboardData).getData('text'));
+    var text = (e.clipboardData || window.clipboardData).getData('text').replace(/\s*\n\s*/g, ' ');
+    document.execCommand('insertText', false, text);
   });
 
   function download() {
+    deselect();
     var html = '<!doctype html>\n' + document.documentElement.outerHTML;
     var doc = new DOMParser().parseFromString(html, 'text/html');
     doc.getElementById('app').innerHTML = cleanHTML();
-    ['ed-bar', 'ed-modal'].forEach(function (id) { var x = doc.getElementById(id); if (x) x.remove(); });
+    ['ed-bar', 'ed-modal', 'ed-sel'].forEach(function (id) { var x = doc.getElementById(id); if (x) x.remove(); });
     doc.body.classList.remove('editing');
     if (!doc.body.getAttribute('class')) doc.body.removeAttribute('class');
     doc.documentElement.style.overflow = '';
