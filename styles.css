@@ -278,3 +278,24 @@ body.editing .ed-bg-looks button[aria-pressed="true"]{background:#efa04b;color:#
 /* home hero: moving sea canvas sits exactly over the still photo */
 .sea-canvas{position:absolute;inset:0;display:block;opacity:0;transition:opacity 1.2s ease}
 .sea-canvas.is-on{opacity:1}
+
+/* home: what's happening this month */
+.wh-section{padding:88px 0;background-color:#012925;isolation:isolate}
+@media (min-width:768px){.wh-section{padding:120px 0}}
+.wh-section [data-bg-img]{z-index:-2}
+.wh-section [data-bg-shade]{z-index:-1}
+.wh-glow{position:absolute;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(60% 70% at 88% 0%,rgba(239,160,75,.16),rgba(239,160,75,0) 70%),radial-gradient(50% 60% at 0% 100%,rgba(71,217,193,.10),rgba(71,217,193,0) 70%)}
+.wh-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:28px}
+.wh-lead{margin-top:18px;max-width:560px;font-size:15px;line-height:1.8;color:rgba(255,255,255,.74)}
+@media (min-width:768px){.wh-lead{font-size:16px}}
+.wh-month{display:inline-flex;align-items:center;gap:10px;padding:12px 22px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:#fff;font:600 14px/1 "Plus Jakarta Sans",system-ui,sans-serif;letter-spacing:.3px;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.wh-month svg{color:rgb(239,160,75);flex:none}
+.wh-grid{gap:24px}
+.wh-grid .media-item{background:#fff;border-radius:18px;box-shadow:0 18px 50px rgba(0,0,0,.28);transition:transform .35s ease,box-shadow .35s ease}
+.wh-grid .media-item:hover{transform:translateY(-4px);box-shadow:0 24px 60px rgba(0,0,0,.36)}
+.wh-grid .media-item figcaption{padding:14px 18px 16px;color:#22322b;font-weight:500}
+.wh-empty{margin-top:48px;border:1px dashed rgba(255,255,255,.28);border-radius:22px;padding:56px 24px;text-align:center;background:rgba(255,255,255,.05);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.wh-empty-icon{margin:0 auto;display:flex;width:60px;height:60px;align-items:center;justify-content:center;border-radius:50%;background:rgba(239,160,75,.16);color:rgb(239,160,75)}
+.wh-empty-title{margin-top:18px;font-family:"Outfit",ui-sans-serif,system-ui,sans-serif;font-size:20px;font-weight:700;color:#fff}
+.wh-empty-text{margin:10px auto 0;max-width:460px;font-size:14px;line-height:1.8;color:rgba(255,255,255,.7)}
+body.editing .wh-section .ed-add button{background:#fff;color:#123d2a}
