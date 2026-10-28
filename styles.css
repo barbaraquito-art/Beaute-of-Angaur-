@@ -274,3 +274,7 @@ body.editing .ed-bg-looks button[aria-pressed="true"]{background:#efa04b;color:#
 .ct-video-section .ct-card{box-shadow:0 24px 60px rgba(0,0,0,.30)}
 .ct-video-credit{position:relative;margin:28px auto 0;text-align:center;font-size:11.5px;letter-spacing:.02em;color:rgba(255,255,255,.62)}
 @media (prefers-reduced-motion:reduce){.ct-video{display:none}}
+
+/* home hero: moving sea canvas sits exactly over the still photo */
+.sea-canvas{position:absolute;inset:0;display:block;opacity:0;transition:opacity 1.2s ease}
+.sea-canvas.is-on{opacity:1}
