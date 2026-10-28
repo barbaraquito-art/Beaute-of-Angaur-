@@ -264,11 +264,12 @@
     catch (e) { flash('Too big to save here. Use Download page.'); }
   }
 
-  function makeItem(kind) {
+  var RICH_BODY = '<figcaption class="wh-body"><span class="wh-tag">News</span><span class="wh-date">Date</span><h3 class="wh-title">Event title</h3><p class="wh-place">Place or short description</p></figcaption>';
+  function makeItem(kind, rich) {
     var fig = document.createElement('figure');
-    fig.className = 'media-item';
-    if (kind === 'video') { fig.setAttribute('data-video', ''); fig.innerHTML = '<div class="media-frame"></div><figcaption>Video caption</figcaption>'; }
-    else { fig.innerHTML = '<img src="" alt="" loading="lazy"><figcaption>Photo caption</figcaption>'; }
+    fig.className = rich ? 'media-item wh-card' : 'media-item';
+    if (kind === 'video') { fig.setAttribute('data-video', ''); fig.innerHTML = '<div class="media-frame"></div>' + (rich ? RICH_BODY : '<figcaption>Video caption</figcaption>'); }
+    else { fig.innerHTML = '<img src="" alt="" loading="lazy">' + (rich ? RICH_BODY : '<figcaption>Photo caption</figcaption>'); }
     return fig;
   }
   function addTools(item) {
@@ -501,9 +502,11 @@
     if (add) {
       snapshot();
       var grid = add.parentElement.previousElementSibling;
-      var item = makeItem(add.getAttribute('data-add'));
+      var rich = grid.hasAttribute('data-rich');
+      var item = makeItem(add.getAttribute('data-add'), rich);
       grid.appendChild(item);
-      var cap = item.querySelector('figcaption'); cap.setAttribute('contenteditable', 'true');
+      if (rich) item.querySelectorAll('.wh-body span, .wh-body h3, .wh-body p').forEach(function (el) { el.setAttribute('contenteditable', 'true'); });
+      else item.querySelector('figcaption').setAttribute('contenteditable', 'true');
       if (item.hasAttribute('data-video')) renderVideo(item);
       addTools(item); refreshGrids();
       openModal(item.hasAttribute('data-video') ? 'video' : 'img', item.hasAttribute('data-video') ? item : item.querySelector('img'), function (ok) { if (!ok) { item.remove(); past.pop(); updateHistoryButtons(); refreshGrids(); } });
