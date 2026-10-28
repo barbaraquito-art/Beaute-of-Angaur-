@@ -347,3 +347,29 @@ body.editing .wh-schedule{grid-row:3}
 body.editing .wh-sch-list li{display:block!important}
 .wh-day{display:block;font:700 12px/1.2 "Plus Jakarta Sans",system-ui,sans-serif;letter-spacing:1.6px;text-transform:uppercase;color:#efa04b}
 .wh-sch-text{display:block;margin-top:6px;font-size:14.5px;line-height:1.55;color:rgba(255,255,255,.86)}
+
+/* home: people of Angaur */
+.pp-section{position:relative;padding:88px 0;background:#f7f1e7;background-image:linear-gradient(180deg,rgba(255,255,255,.5),rgba(255,255,255,0) 40%)}
+@media (min-width:768px){.pp-section{padding:112px 0}}
+.pp-head{display:grid;gap:18px;align-items:end}
+@media (min-width:900px){.pp-head{grid-template-columns:1fr 1fr;gap:48px}}
+.pp-eyebrow{display:flex;align-items:center;gap:12px;font:600 13px/1 "Plus Jakarta Sans",system-ui,sans-serif;letter-spacing:3px;text-transform:uppercase;color:#b4632a}
+.pp-eyebrow::before{content:"";width:26px;height:2px;background:#efa04b}
+.pp-h{margin-top:14px;font-family:"DM Serif Display",Georgia,serif;font-weight:400;font-size:38px;line-height:1.05;color:#16261e}
+@media (min-width:768px){.pp-h{font-size:56px}}
+.pp-accent{font-style:italic;color:#1d6b47}
+.pp-lead{font-size:15.5px;line-height:1.85;color:#4c5a52;max-width:520px}
+.pp-grid{margin-top:40px;display:grid;gap:16px;grid-template-columns:minmax(0,1fr);grid-auto-rows:320px}
+@media (min-width:768px){.pp-grid{grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:250px;gap:18px}
+  .pp-grid>.media-item:nth-child(1){grid-column:span 2;grid-row:span 2}
+  .pp-grid>.media-item:nth-child(2),.pp-grid>.media-item:nth-child(3){grid-column:span 2}}
+.pp-grid>.media-item{position:relative;border-radius:20px;overflow:hidden;background:#d9d2c5;box-shadow:0 14px 40px rgba(22,38,30,.12)}
+.pp-grid>.media-item>img{position:absolute;inset:0;width:100%;height:100%;aspect-ratio:auto;object-fit:cover;transition:transform .8s ease}
+.pp-grid>.media-item:hover>img{transform:scale(1.04)}
+.pp-grid>.media-item::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,20,15,0) 50%,rgba(10,20,15,.72) 100%);pointer-events:none}
+.pp-grid>.media-item figcaption{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:18px 22px;color:#fff;font:600 15px/1.45 "Plus Jakarta Sans",system-ui,sans-serif}
+.pp-credit{display:block;margin-top:3px;font-size:11px;font-weight:500;letter-spacing:.2px;color:rgba(255,255,255,.72)}
+.pp-grid>.media-item[data-video] .media-frame{position:absolute;inset:0;aspect-ratio:auto}
+.pp-empty{margin-top:40px;border:1px dashed rgba(22,38,30,.25);border-radius:20px;padding:56px 24px;text-align:center}
+.pp-empty-title{font-family:"DM Serif Display",Georgia,serif;font-size:24px;color:#16261e}
+.pp-empty-sub{margin:10px auto 0;max-width:460px;color:#5b6b62;font-size:15px;line-height:1.6}
