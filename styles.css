@@ -257,13 +257,20 @@ body.editing .ed-bg-looks button[aria-pressed="true"]{background:#efa04b;color:#
 .ct-ph{display:inline-block;white-space:nowrap}
 @media (max-width:520px){.ct-sep{display:none}.ct-ph{display:block}}
 
-/* transport: photos and ocean background */
-.tr-section{background:linear-gradient(180deg,rgba(9,43,30,.72),rgba(9,43,30,.86)),url(images/tr-bg.webp) center/cover no-repeat}
-.tr-section h2{color:#fff!important}
-.tr-section .max-w-3xl p{color:rgba(255,255,255,.82)!important}
-.tr-section .eyebrow{color:#f3c98c!important}
+/* transport: photo cards on a light background */
 .tr-card{overflow:hidden;position:relative;padding-top:210px!important}
 .tr-card.tr-air,.tr-card.tr-sea{background-repeat:no-repeat;background-position:top center;background-size:100% 100%,max(100%,580px) auto;background-color:#fff}
 .tr-card.tr-air{background-image:linear-gradient(180deg,rgba(255,255,255,0) 0,rgba(255,255,255,0) 115px,rgba(255,255,255,.72) 195px,#fff 258px),url(images/tr-plane.webp)}
 .tr-card.tr-sea{background-image:linear-gradient(180deg,rgba(255,255,255,0) 0,rgba(255,255,255,0) 115px,rgba(255,255,255,.72) 195px,#fff 258px),url(images/tr-boat.webp)}
-.tr-section .tr-card{box-shadow:0 18px 50px rgba(0,0,0,.28)}
+.tr-section .tr-card{box-shadow:0 14px 40px rgba(18,61,42,.10);border:1px solid rgba(18,61,42,.06)}
+/* contact office: island video background */
+.ct-video-section{position:relative;overflow:hidden;background:#0b3b33 url(images/contact-island.webp) center/cover no-repeat;isolation:isolate}
+.ct-video{position:absolute;inset:0;z-index:-2}
+.ct-video video{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(1.05)}
+.ct-video-shade{position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(1,41,37,.80) 0%,rgba(1,41,37,.52) 40%,rgba(1,41,37,.62) 72%,rgba(1,41,37,.88) 100%)}
+.ct-video-section h2{color:#fff!important;text-shadow:0 2px 18px rgba(0,0,0,.25)}
+.ct-video-section .max-w-3xl p{color:rgba(255,255,255,.86)!important}
+.ct-video-section .eyebrow{color:#f3c98c!important}
+.ct-video-section .ct-card{box-shadow:0 24px 60px rgba(0,0,0,.30)}
+.ct-video-credit{position:relative;margin:28px auto 0;text-align:center;font-size:11.5px;letter-spacing:.02em;color:rgba(255,255,255,.62)}
+@media (prefers-reduced-motion:reduce){.ct-video{display:none}}
