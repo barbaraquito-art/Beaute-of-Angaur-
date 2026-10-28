@@ -124,7 +124,7 @@
     var box = fig.querySelector('.media-frame'); if (!box) return;
     var v = videoSource(fig.getAttribute('data-video'));
     box.innerHTML = '';
-    if (!v) { box.innerHTML = '<div class="media-empty">No video link yet</div>'; return; }
+    if (!v) { box.innerHTML = '<div class="media-empty">Video coming soon</div>'; return; }
     var el;
     if (v.type === 'file') { el = document.createElement('video'); el.controls = true; el.playsInline = true; el.preload = 'metadata'; }
     else { el = document.createElement('iframe'); el.allow = 'autoplay; encrypted-media; fullscreen; picture-in-picture'; el.allowFullscreen = true; el.loading = 'lazy'; el.title = (fig.querySelector('figcaption') || {}).textContent || 'Video'; }
