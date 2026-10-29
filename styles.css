@@ -583,3 +583,75 @@ body.editing .pp-grid>.media-item{height:300px}
   .tr-map .tr-compass{display:none}
   .tr-map .tr-map-top{display:none}
 }
+
+/* transportation: pilot-style route chart */
+.tr-map{display:none}
+.pc-chart{position:relative;max-width:1000px;margin:36px auto 0;border-radius:22px;overflow:hidden;background:#f7f3e6;border:1px solid rgba(18,61,42,.14);box-shadow:0 30px 70px rgba(8,38,58,.18)}
+.pc-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px 18px;padding:14px 20px;background:#0f2f45;color:#fff}
+.pc-title{display:flex;align-items:baseline;gap:12px;font:800 16px/1 "Plus Jakarta Sans",system-ui,sans-serif;letter-spacing:.5px}
+.pc-title i{font-style:normal;color:#e9b872}
+.pc-k{font:700 10.5px/1 "Plus Jakarta Sans",system-ui,sans-serif;letter-spacing:2.4px;text-transform:uppercase;color:#e9b872}
+.pc-legend{display:flex;flex-wrap:wrap;gap:8px 18px;font:600 12px/1 "Plus Jakarta Sans",system-ui,sans-serif;color:rgba(255,255,255,.85)}
+.pc-legend span{display:inline-flex;align-items:center;gap:8px}
+.pc-legend span::before{content:"";width:22px;height:0;border-top:3px solid #c0267a}
+.pc-legend .lg-s::before{border-top:3px dashed #1f6fb2}
+.pc-svg{display:block;width:100%;height:auto}
+.pc-grid{stroke:rgba(31,94,140,.16);stroke-width:1}
+.pc-grid-b{stroke:rgba(31,94,140,.3)}
+.pc-tick{stroke:rgba(31,94,140,.55);stroke-width:1}
+.pc-glbl{font:600 10px "IBM Plex Mono",ui-monospace,monospace;fill:#1f5e8c}
+.pc-reef{fill:none;stroke:#3a8fb7;stroke-width:1.3;stroke-dasharray:3 3;opacity:.75}
+.pc-shallow{fill:#a9dbe0;opacity:.85}
+.pc-land{fill:#f2eac6;stroke:#8c7a46;stroke-width:1.4;stroke-linejoin:round}
+.pc-landh{fill:url(#pch);stroke:none;pointer-events:none}
+.pc-rocks path{fill:#e7dcab;stroke:#8c7a46;stroke-width:.8}
+.pc-rose circle{fill:none;stroke:rgba(31,94,140,.55);stroke-width:1.2}
+.pc-rose circle.in{stroke-dasharray:2 3}
+.pc-rose line{stroke:#1f5e8c;stroke-width:1}
+.pc-rl{font:700 10px "Plus Jakarta Sans",system-ui,sans-serif;fill:#1f5e8c;text-anchor:middle}
+.pc-n{fill:#c0267a;opacity:.85}
+.pc-water{font:italic 600 15px Georgia,serif;letter-spacing:6px;fill:rgba(31,94,140,.6)}
+.pc-big{font:800 17px "Plus Jakarta Sans",system-ui,sans-serif;letter-spacing:5px;fill:#5d4f27}
+.pc-town{font:800 13px "Plus Jakarta Sans",system-ui,sans-serif;letter-spacing:2.5px;fill:#16261e}
+.pc-mid{font:800 13px "Plus Jakarta Sans",system-ui,sans-serif;letter-spacing:3px;fill:#5d4f27}
+.pc-it{font:italic 600 12px Georgia,serif;letter-spacing:3px;fill:#6c5d33}
+.pc-airhalo{fill:none;stroke:#fff;stroke-width:8;opacity:.75;stroke-linecap:round}
+.pc-airroute{fill:none;stroke:#c0267a;stroke-width:3.2;stroke-linecap:round}
+.pc-searoute{fill:none;stroke:#1f6fb2;stroke-width:2.6;stroke-dasharray:9 6;stroke-linecap:round;animation:pcDash 1.6s linear infinite}
+@keyframes pcDash{to{stroke-dashoffset:-30}}
+.pc-dtick{stroke:#c0267a;stroke-width:2}
+.pc-dnum{font:700 10px "IBM Plex Mono",ui-monospace,monospace;fill:#c0267a}
+.pc-crs{fill:#fff;stroke:#c0267a;stroke-width:1.6}
+.pc-crst{font:800 12px "IBM Plex Mono",ui-monospace,monospace;fill:#c0267a}
+.pc-apt circle{fill:none;stroke-width:3.2}
+.pc-apt line{stroke-width:5;stroke-linecap:butt}
+.pc-apt.tw circle,.pc-apt.tw line{stroke:#1f5e8c}
+.pc-apt.nt circle,.pc-apt.nt line{stroke:#c0267a}
+.pc-box text{font:600 10.5px "IBM Plex Mono",ui-monospace,monospace;fill:#1f5e8c}
+.pc-box .t{font:800 12.5px "Plus Jakarta Sans",system-ui,sans-serif;fill:#16261e;letter-spacing:.5px}
+.pc-port circle{fill:#fff;stroke:#1f6fb2;stroke-width:2.4}
+.pc-pl{font:700 10.5px "Plus Jakarta Sans",system-ui,sans-serif;letter-spacing:1.5px;fill:#1f5e8c}
+.pc-plane{fill:#16261e;stroke:#fff;stroke-width:1.2}
+.pc-tag-air{fill:#c0267a}
+.pc-tag-sea{fill:#e0a95e}
+.pc-tag{font:800 10.5px "Plus Jakarta Sans",system-ui,sans-serif;letter-spacing:1px;fill:#fff;text-anchor:middle}
+.pc-tag-s{fill:#0b2a2c}
+.pc-boat{fill:#e0a95e;stroke:#fff;stroke-width:2}
+.pc-boat-ic{fill:none;stroke:#0b2a2c;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.pc-scale rect.a{fill:#16261e}.pc-scale rect.b{fill:#fff;stroke:#16261e;stroke-width:1}
+.pc-scale text{font:700 10px "IBM Plex Mono",ui-monospace,monospace;fill:#16261e}
+.pc-foot{margin:0;padding:10px 20px;background:#efe8d3;font:600 10.5px/1.4 "Plus Jakarta Sans",system-ui,sans-serif;letter-spacing:1px;text-transform:uppercase;color:#6b6142}
+@media (max-width:640px){
+  .pc-chart{border-radius:16px}
+  .pc-head{padding:12px 14px}
+  .pc-title{font-size:14px}
+  .pc-legend{font-size:11px}
+  .pc-glbl,.pc-rl,.pc-dnum,.pc-water,.pc-pl,.pc-box tspan:not(.t),.pc-it{display:none}
+  .pc-big{font-size:30px}.pc-town,.pc-mid{font-size:24px}
+  .pc-box .t{font-size:22px}
+  .pc-crsg{display:none}
+  .pc-foot{font-size:9px;padding:8px 14px}
+  .pc-mv g>*{transform:scale(1.7)}
+  .pc-mv .pc-plane{transform:rotate(90deg) scale(1.7)}
+}
+@media (prefers-reduced-motion:reduce){.pc-mv{display:none}.pc-searoute{animation:none}}
