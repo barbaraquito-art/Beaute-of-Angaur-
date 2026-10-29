@@ -463,15 +463,17 @@ body.editing .pp-grid>.media-item{height:300px}
 .tr-lane{position:relative;height:24px}
 .tr-lane::before{content:"";position:absolute;left:0;right:0;top:50%;height:2px;transform:translateY(-50%);background:repeating-linear-gradient(90deg,rgba(18,61,42,.35) 0 8px,transparent 8px 16px);background-size:32px 2px;animation:trDash 1.6s linear infinite}
 .tr-lane-sea::before{height:8px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='8' viewBox='0 0 24 8'%3E%3Cpath d='M0 4 Q6 0 12 4 T24 4' fill='none' stroke='%231d6b47' stroke-opacity='.45' stroke-width='1.6'/%3E%3C/svg%3E") repeat-x;background-size:24px 8px;animation:trWave 2.2s linear infinite}
-.tr-mover{position:absolute;top:50%;left:0;display:grid;place-items:center;width:34px;height:34px;margin-top:-17px;border-radius:50%;color:#fff;background:linear-gradient(135deg,#1D6B47,#123D2A);box-shadow:0 8px 20px rgba(18,61,42,.28);animation:trFly 7s cubic-bezier(.45,.05,.35,1) infinite}
-.tr-lane-sea .tr-mover{background:linear-gradient(135deg,#e9b872,#d0893e);animation:trSail 11s ease-in-out infinite}
-.tr-mover svg{width:18px;height:18px}
-@keyframes trFly{0%{left:0;opacity:0;transform:translateY(6px) scale(.8)}8%{opacity:1;transform:translateY(-4px) scale(1)}85%{left:calc(100% - 34px);opacity:1;transform:translateY(-4px)}95%,100%{left:calc(100% - 34px);opacity:0;transform:translateY(4px) scale(.8)}}
-@keyframes trSail{0%{left:0;opacity:0}6%{opacity:1}20%{transform:translateY(-2px) rotate(-3deg)}40%{transform:translateY(2px) rotate(3deg)}60%{transform:translateY(-2px) rotate(-3deg)}80%{transform:translateY(2px) rotate(2deg)}88%{left:calc(100% - 34px);opacity:1}96%,100%{left:calc(100% - 34px);opacity:0}}
+.tr-mover{--w:78px;position:absolute;top:50%;left:0;display:flex;align-items:center;justify-content:center;gap:6px;width:var(--w);height:32px;margin-top:-16px;border-radius:999px;color:#fff;background:linear-gradient(135deg,#1D6B47,#123D2A);box-shadow:0 8px 20px rgba(18,61,42,.28);animation:trFly 7s cubic-bezier(.45,.05,.35,1) infinite}
+.tr-lane-sea .tr-mover{--w:98px;background:linear-gradient(135deg,#e9b872,#d0893e);animation:trSail 11s ease-in-out infinite}
+.tr-mover svg{flex:none;width:17px;height:17px}
+.tr-mover em{font:800 11px/1 "Plus Jakarta Sans",system-ui,sans-serif;font-style:normal;letter-spacing:1px}
+.tr-lane-sea .tr-mover{color:#0b2a2c}
+@keyframes trFly{0%{left:0;opacity:0;transform:translateY(6px) scale(.8)}8%{opacity:1;transform:translateY(-4px) scale(1)}85%{left:calc(100% - var(--w));opacity:1;transform:translateY(-4px)}95%,100%{left:calc(100% - var(--w));opacity:0;transform:translateY(4px) scale(.8)}}
+@keyframes trSail{0%{left:0;opacity:0}6%{opacity:1}20%{transform:translateY(-2px) rotate(-3deg)}40%{transform:translateY(2px) rotate(3deg)}60%{transform:translateY(-2px) rotate(-3deg)}80%{transform:translateY(2px) rotate(2deg)}88%{left:calc(100% - var(--w));opacity:1}96%,100%{left:calc(100% - var(--w));opacity:0}}
 @keyframes trDash{to{background-position:32px 0}}
 @keyframes trWave{to{background-position:24px 0}}
 @keyframes trPulse{0%,100%{box-shadow:0 0 0 5px rgba(29,107,71,.14)}50%{box-shadow:0 0 0 9px rgba(29,107,71,0)}}
-@media (max-width:520px){.tr-route{gap:8px;font-size:10px;letter-spacing:1.5px}}
+@media (max-width:520px){.tr-route{gap:8px;font-size:10px;letter-spacing:1.5px}.tr-mover{--w:66px;height:28px;margin-top:-14px}.tr-lane-sea .tr-mover{--w:84px}.tr-mover em{font-size:10px}.tr-mover svg{width:14px;height:14px}}
 
 /* photo layer: the plane "lands" and the boat settles on the water */
 .tr-section .tr-card.tr-air,.tr-section .tr-card.tr-sea{background-image:none!important;isolation:isolate;transition:transform .5s cubic-bezier(.2,.7,.2,1),box-shadow .5s ease,opacity .9s ease}
@@ -510,4 +512,74 @@ body.editing .pp-grid>.media-item{height:300px}
 .tr-section .tr-list li{transition:background .25s ease}
 .tr-section .tr-list li:hover{background:linear-gradient(90deg,rgba(29,107,71,.06),rgba(29,107,71,0))}
 .tr-section .tr-day{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:rgba(29,107,71,.08)}
-@media (prefers-reduced-motion:reduce){.tr-section .tr-card::before,.tr-section .tr-card *,.tr-route *,.tr-route .tr-lane::before{animation:none!important}.tr-mover{left:calc(50% - 17px)!important}}
+@media (prefers-reduced-motion:reduce){.tr-section .tr-card::before,.tr-section .tr-card *,.tr-route *,.tr-route .tr-lane::before{animation:none!important}.tr-mover{left:calc(50% - var(--w)/2)!important}}
+
+/* transportation: balanced cards and premium contact boxes */
+@media (min-width:1024px){
+  .tr-section .tr-grid{align-items:stretch}
+  .tr-section .tr-card{display:flex;flex-direction:column}
+  .tr-section .tr-card>.tr-contact{margin-top:auto}
+  .tr-section .tr-card>:nth-last-child(3){margin-bottom:26px}
+}
+.tr-section .tr-contact{position:relative;overflow:hidden;padding:20px 22px;border-radius:18px;color:rgba(255,255,255,.88);background:linear-gradient(140deg,#174f37 0%,#123d2a 55%,#0b2a2c 100%);box-shadow:0 14px 34px rgba(18,61,42,.22)}
+.tr-section .tr-contact::before{content:"";position:absolute;left:0;top:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#e9b872 30%,#f6d9a4 50%,#e9b872 70%,transparent)}
+.tr-section .tr-contact::after{content:"";position:absolute;right:-60px;top:-70px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(233,184,114,.18),rgba(233,184,114,0) 70%);pointer-events:none}
+.tr-section .tr-contact .tr-sub{margin:0 0 10px!important;font:700 11px/1 "Plus Jakarta Sans",system-ui,sans-serif!important;letter-spacing:2.2px;text-transform:uppercase;color:#e9b872!important}
+.tr-section .tr-contact .tr-sub::after{display:none!important}
+.tr-section .tr-contact p{color:rgba(255,255,255,.88);line-height:1.75}
+.tr-section .tr-contact a{color:#fff!important;font-weight:600;text-decoration:none!important;border-bottom:1px solid rgba(246,217,164,.5)}
+.tr-section .tr-contact a:hover{color:#f6d9a4!important}
+.tr-section .tr-phones{gap:10px!important;margin-top:12px!important}
+.tr-section .tr-phones .tr-tel{color:#e9b872!important;font-size:11px;font-weight:700!important;letter-spacing:2px;text-transform:uppercase}
+.tr-section .tr-phones a{display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border:1px solid rgba(255,255,255,.18)!important;border-radius:999px;background:rgba(255,255,255,.08);transition:background .25s ease,transform .25s ease}
+.tr-section .tr-phones a:hover{background:rgba(255,255,255,.16);transform:translateY(-1px)}
+.tr-section .tr-phones a span{color:rgba(255,255,255,.62)!important;font-size:12px}
+.tr-section .tr-card>.tr-note:last-child{display:flex;gap:8px;align-items:flex-start;margin-top:14px;font-style:italic}
+.tr-section .tr-card>.tr-note:last-child::before{content:"i";flex:none;display:grid;place-items:center;width:16px;height:16px;margin-top:2px;border-radius:50%;font:700 10px/1 Georgia,serif;font-style:normal;color:#fff;background:#d98a2b}
+
+/* transportation: in-flight style destination map */
+.tr-route{display:none}
+.tr-map{position:relative;max-width:980px;margin:36px auto 0;border-radius:24px;overflow:hidden;background:radial-gradient(120% 140% at 75% 10%,#14506a 0%,#0d3a50 45%,#08263a 100%);box-shadow:0 30px 70px rgba(8,38,58,.28),inset 0 1px 0 rgba(255,255,255,.08);color:#fff}
+.tr-map::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,0) 30%);border-radius:inherit}
+.tr-map-top{position:absolute;left:0;right:0;top:0;z-index:2;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px 16px;padding:16px 20px;font:700 11px/1 "Plus Jakarta Sans",system-ui,sans-serif;letter-spacing:2.2px;text-transform:uppercase}
+.tr-map-title{display:flex;align-items:center;gap:10px;color:#fff}
+.tr-map-title i{font-style:normal;color:#e9b872}
+.tr-map-legend{display:flex;gap:14px;color:rgba(255,255,255,.7);letter-spacing:1.4px}
+.tr-map-legend span{display:inline-flex;align-items:center;gap:7px}
+.tr-map-legend span::before{content:"";width:18px;height:0;border-top:2px dashed #f6d9a4}
+.tr-map-legend .lg-sea::before{border-top:2px dotted #7fe0c0}
+.tr-map-svg{display:block;width:100%;height:auto;min-height:240px;aspect-ratio:1000/360}
+.tr-isl path,.tr-isl circle{fill:#2f7d5a;stroke:rgba(190,240,210,.35);stroke-width:1.2}
+.tr-lbl{font:800 15px "Plus Jakarta Sans",system-ui,sans-serif;letter-spacing:3px;fill:#fff}
+.tr-lbl-sm{font:600 11px "Plus Jakarta Sans",system-ui,sans-serif;letter-spacing:1.5px;fill:rgba(255,255,255,.45)}
+.tr-path-air{fill:none;stroke:#f6d9a4;stroke-width:2.2;stroke-dasharray:8 9;stroke-linecap:round;animation:trMapDash 1.4s linear infinite}
+.tr-path-sea{fill:none;stroke:#7fe0c0;stroke-width:2;stroke-dasharray:2 7;stroke-linecap:round;opacity:.85;animation:trMapDash 2.4s linear infinite}
+@keyframes trMapDash{to{stroke-dashoffset:-34}}
+.dot-k{fill:#2fbf71;stroke:#fff;stroke-width:2}
+.dot-a{fill:#e9b872;stroke:#fff;stroke-width:2}
+.tr-pin circle:first-child{animation:trMapGlow 2.6s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes trMapGlow{0%,100%{opacity:.5;transform:scale(.8)}50%{opacity:1;transform:scale(1.15)}}
+.tr-plane{fill:#fff;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4))}
+.tag-air{fill:#1d6b47;stroke:rgba(255,255,255,.5);stroke-width:1}
+.tag-sea{fill:#e0a95e;stroke:rgba(255,255,255,.55);stroke-width:1}
+.tag-t{font:800 11px "Plus Jakarta Sans",system-ui,sans-serif;letter-spacing:1px;fill:#fff;text-anchor:middle}
+.tag-t-sea{fill:#0b2a2c}
+.tr-boat{fill:#e0a95e;stroke:#fff;stroke-width:2}
+.tr-boat-ic{fill:none;stroke:#0b2a2c;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.tr-compass circle{fill:rgba(255,255,255,.06);stroke:rgba(255,255,255,.25)}
+.tr-compass path{fill:rgba(255,255,255,.35)}
+.tr-compass path.n{fill:#e9b872}
+.tr-compass text{font:700 10px "Plus Jakarta Sans",system-ui,sans-serif;fill:rgba(255,255,255,.7);text-anchor:middle}
+.tr-map-foot{position:absolute;left:20px;bottom:12px;margin:0;font:600 10px/1 "Plus Jakarta Sans",system-ui,sans-serif;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.45)}
+@media (max-width:640px){.tr-map{border-radius:18px}.tr-map-top{padding:12px 14px;font-size:10px}.tr-map-legend{display:none}.tr-map-svg{min-height:0}.tr-map-foot{display:none}}
+@media (prefers-reduced-motion:reduce){.tr-map .mv{display:none}.tr-path-air,.tr-path-sea,.tr-pin circle{animation:none!important}}
+/* keep contact labels capital-looking without changing the text */
+.tr-section .tr-contact .tr-sub,.tr-section .tr-phones .tr-tel{text-transform:none!important;font-variant-caps:all-small-caps;font-size:13px!important;letter-spacing:1.6px}
+@media (max-width:640px){
+  .tr-map .tr-lbl{font-size:30px;letter-spacing:2px}
+  .tr-map .tr-lbl-sm{font-size:20px}
+  .tr-map .mv rect,.tr-map .mv text,.tr-map .tr-boat,.tr-map .tr-boat-ic{transform:scale(1.8)}
+  .tr-map .tr-plane{transform:rotate(90deg) scale(1.8)}
+  .tr-map .tr-compass{display:none}
+  .tr-map .tr-map-top{display:none}
+}
