@@ -232,7 +232,7 @@
       if (!val) { mErr.textContent = mKind === 'img' ? 'Paste a photo link or upload a photo first.' : 'Paste a video link or upload a clip first.'; mErr.hidden = false; return; }
       if (mKind === 'img') {
         mTarget.src = val; mTarget.removeAttribute('srcset'); mTarget.alt = mAlt.value;
-        if (mTarget.classList.contains('page-hero-img')) { var cr = mTarget.parentElement.querySelector('.page-hero-credit'); if (cr) cr.remove(); }
+        if (mTarget.classList.contains('page-hero-img')) { var hs = mTarget.closest('.page-hero'), cr = hs && hs.querySelector('.page-hero-credit'); if (cr) cr.remove(); }
       }
       else { mTarget.setAttribute('data-video', val); renderVideo(mTarget); }
       if (mDone) mDone(true);
@@ -250,6 +250,7 @@
     c.querySelectorAll('[data-poi-ready]').forEach(function (el) { el.removeAttribute('data-poi-ready'); });
     c.querySelectorAll('.ed-only').forEach(function (el) { el.remove(); });
     c.querySelectorAll('.ed-selected').forEach(function (el) { el.classList.remove('ed-selected'); if (!el.getAttribute('class')) el.removeAttribute('class'); });
+    c.querySelectorAll('canvas.sea-canvas').forEach(function (el) { el.remove(); });
     c.querySelectorAll('img[draggable]').forEach(function (el) { el.removeAttribute('draggable'); });
     c.querySelectorAll('.media-item[data-video] .media-frame').forEach(function (el) { el.innerHTML = ''; });
     c.querySelectorAll('[data-media-empty]').forEach(function (el) { el.style.display = ''; if (!el.getAttribute('style')) el.removeAttribute('style'); });
@@ -589,9 +590,9 @@
   }
 
   /* ---------- background photos: change the photo and how strongly it shows ---------- */
-  var BG_LOOKS = [['clear', 'Clear'], ['', 'Normal'], ['strong', 'Faded'], ['none', 'No photo']];
+  var BG_LOOKS = [['clear', 'Clear'], ['', 'Normal'], ['strong', 'Faded'], ['full', 'Full photo'], ['none', 'No photo']];
   function bgParts(s) {
-    if (s.classList.contains('page-hero')) return { img: s.querySelector(':scope > .page-hero-img'), shade: s.querySelector(':scope > .page-hero-shade') };
+    if (s.classList.contains('page-hero')) return { img: s.querySelector('img.page-hero-img'), shade: s.querySelector(':scope > .page-hero-shade') };
     var shade = null, img = null;
     s.querySelectorAll('div.absolute.inset-0').forEach(function (d) { if (!shade && /gradient/.test(d.getAttribute('style') || '')) shade = d; });
     if (!shade) return null;
@@ -613,7 +614,8 @@
       var panel = document.createElement('div');
       panel.className = 'ed-bg-panel ed-only'; panel.setAttribute('contenteditable', 'false');
       var html = '<button type="button" data-bgact="photo" class="ed-bg-main">Change background photo</button><span class="ed-bg-looks" role="group" aria-label="How the photo shows">';
-      BG_LOOKS.forEach(function (l) { html += '<button type="button" data-bgact="look" data-look="' + l[0] + '">' + l[1] + '</button>'; });
+      var canFull = s.classList.contains('page-hero') || s.id === 'home';
+      BG_LOOKS.forEach(function (l) { if (l[0] === 'full' && !canFull) return; html += '<button type="button" data-bgact="look" data-look="' + l[0] + '">' + l[1] + '</button>'; });
       panel.innerHTML = html + '</span>';
       box.appendChild(panel);
       markLook(s);
@@ -635,7 +637,7 @@
     snapshot();
     if (look) s.setAttribute('data-bg', look); else s.removeAttribute('data-bg');
     markLook(s); autosave();
-    flash({ clear: 'Photo shows clearly', '': 'Photo back to normal', strong: 'Photo faded into the background', none: 'Photo hidden (it is kept, choose another look to bring it back)' }[look]);
+    flash({ clear: 'Photo shows clearly', '': 'Photo back to normal', strong: 'Photo faded into the background', full: 'Whole photo shows, next to the title', none: 'Photo hidden (it is kept, choose another look to bring it back)' }[look]);
   }
 
   /* ---------- the page as it should be saved ---------- */

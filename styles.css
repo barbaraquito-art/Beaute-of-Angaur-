@@ -421,3 +421,93 @@ body.editing .pp-grid>.media-item{height:300px}
 .vip-quote p{margin:6px auto 0;max-width:520px;font-family:"DM Serif Display",Georgia,serif;font-style:italic;font-size:19px;line-height:1.5;color:rgba(255,255,255,.92)}
 @media (min-width:768px){.vip-quote p{font-size:22px}}
 @media (max-width:480px){.vip-card{padding:26px 16px 22px}.vip-tile{padding:15px 14px;gap:12px}.vip-ic{width:38px;height:38px}.vip-val{font-size:14px}}
+
+/* background look "Full photo": show the whole photo (pages and Home) */
+.page-hero[data-bg="full"] .page-hero-shade{display:none!important}
+.page-hero[data-bg="full"] .page-hero-media{position:relative;line-height:0}
+.page-hero[data-bg="full"] .page-hero-media>.page-hero-img{position:relative;inset:auto;z-index:auto;display:block;height:auto!important;object-fit:contain}
+.page-hero[data-bg="full"] .page-hero-media>.sea-canvas{position:absolute;inset:0;width:100%;height:100%!important}
+.page-hero[data-bg="full"] .page-hero-credit{position:static!important;display:block;max-width:none;margin:8px 0 0;padding:0;background:none;font-size:11px;color:#6b7a72}
+@media (max-width:767px){
+  .page-hero[data-bg="full"]{padding-top:0!important}
+  .page-hero[data-bg="full"] .page-hero-media>.page-hero-img{width:100%}
+  .page-hero[data-bg="full"] .page-hero-credit{margin:8px 24px 0}
+  .page-hero[data-bg="full"]>.container-x{padding-top:28px}
+}
+@media (min-width:768px){
+  .page-hero[data-bg="full"]{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);column-gap:56px;align-items:center;min-height:0!important;padding-left:max(24px,calc((100% - 1132px)/2));padding-right:max(24px,calc((100% - 1132px)/2))}
+  .page-hero[data-bg="full"]>.container-x{grid-column:1;grid-row:1;max-width:none;width:auto;padding-left:0;padding-right:0;margin:0}
+  .page-hero[data-bg="full"] .page-hero-media{grid-column:2;grid-row:1;justify-self:end;width:fit-content;max-width:100%;border-radius:24px;overflow:hidden;box-shadow:0 30px 70px rgba(22,38,30,.18)}
+  .page-hero[data-bg="full"] .page-hero-media>.page-hero-img{width:auto;max-width:100%;max-height:440px}
+  .page-hero[data-bg="full"] .page-hero-credit{grid-column:2;grid-row:2;justify-self:end;text-align:right}
+}
+@media (min-width:768px) and (max-width:1023px){.page-hero[data-bg="full"]{grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:32px}.page-hero[data-bg="full"] .page-hero-media>.page-hero-img{max-height:340px}}
+.page-hero[data-bg="full"] .page-hero-media>.page-hero-img.hero-focus-right{width:100%!important;max-height:none;aspect-ratio:1.42;object-fit:cover;object-position:right center}
+@media (min-width:768px){.page-hero[data-bg="full"] .page-hero-media:has(.hero-focus-right){width:100%}}
+@media (max-width:767px){
+  #home[data-bg="full"]>div:first-child{height:auto!important;overflow:visible}
+  #home[data-bg="full"]>div:first-child>div:first-child{position:relative!important;inset:auto!important;width:100%;aspect-ratio:1536/1024}
+  #home[data-bg="full"]>div:first-child>div:first-child>img,#home[data-bg="full"]>div:first-child>div:first-child>canvas{position:absolute;inset:0}
+  #home[data-bg="full"]>div:first-child>[data-bg-shade]{display:none}
+  #home[data-bg="full"]>div:first-child>div.relative{height:auto!important;padding-top:28px;padding-bottom:8px}
+  #home[data-bg="full"]>div:nth-child(2)>div.relative{margin-top:28px}
+}
+@media (min-width:768px){#home[data-bg="full"] [data-bg-shade]{background-image:linear-gradient(to right,#FAF7F2 0%,#FAF7F2 46%,rgba(250,247,242,0) 48%)!important}}
+
+/* contact: transportation - landing, route and schedule effects */
+.tr-route{position:relative;display:flex;align-items:center;gap:14px;max-width:760px;margin:34px auto 0;font:700 11.5px/1 "Plus Jakarta Sans",system-ui,sans-serif;letter-spacing:2.5px;text-transform:uppercase;color:#123d2a}
+.tr-pt{flex:none;display:flex;align-items:center;gap:8px}
+.tr-pt i{width:10px;height:10px;border-radius:50%;background:#1d6b47;box-shadow:0 0 0 5px rgba(29,107,71,.14);animation:trPulse 2.4s ease-in-out infinite}
+.tr-pt:last-child i{background:#e0a95e;box-shadow:0 0 0 5px rgba(224,169,94,.2);animation-delay:1.2s}
+.tr-lanes{position:relative;flex:1;display:grid;gap:10px}
+.tr-lane{position:relative;height:24px}
+.tr-lane::before{content:"";position:absolute;left:0;right:0;top:50%;height:2px;transform:translateY(-50%);background:repeating-linear-gradient(90deg,rgba(18,61,42,.35) 0 8px,transparent 8px 16px);background-size:32px 2px;animation:trDash 1.6s linear infinite}
+.tr-lane-sea::before{height:8px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='8' viewBox='0 0 24 8'%3E%3Cpath d='M0 4 Q6 0 12 4 T24 4' fill='none' stroke='%231d6b47' stroke-opacity='.45' stroke-width='1.6'/%3E%3C/svg%3E") repeat-x;background-size:24px 8px;animation:trWave 2.2s linear infinite}
+.tr-mover{position:absolute;top:50%;left:0;display:grid;place-items:center;width:34px;height:34px;margin-top:-17px;border-radius:50%;color:#fff;background:linear-gradient(135deg,#1D6B47,#123D2A);box-shadow:0 8px 20px rgba(18,61,42,.28);animation:trFly 7s cubic-bezier(.45,.05,.35,1) infinite}
+.tr-lane-sea .tr-mover{background:linear-gradient(135deg,#e9b872,#d0893e);animation:trSail 11s ease-in-out infinite}
+.tr-mover svg{width:18px;height:18px}
+@keyframes trFly{0%{left:0;opacity:0;transform:translateY(6px) scale(.8)}8%{opacity:1;transform:translateY(-4px) scale(1)}85%{left:calc(100% - 34px);opacity:1;transform:translateY(-4px)}95%,100%{left:calc(100% - 34px);opacity:0;transform:translateY(4px) scale(.8)}}
+@keyframes trSail{0%{left:0;opacity:0}6%{opacity:1}20%{transform:translateY(-2px) rotate(-3deg)}40%{transform:translateY(2px) rotate(3deg)}60%{transform:translateY(-2px) rotate(-3deg)}80%{transform:translateY(2px) rotate(2deg)}88%{left:calc(100% - 34px);opacity:1}96%,100%{left:calc(100% - 34px);opacity:0}}
+@keyframes trDash{to{background-position:32px 0}}
+@keyframes trWave{to{background-position:24px 0}}
+@keyframes trPulse{0%,100%{box-shadow:0 0 0 5px rgba(29,107,71,.14)}50%{box-shadow:0 0 0 9px rgba(29,107,71,0)}}
+@media (max-width:520px){.tr-route{gap:8px;font-size:10px;letter-spacing:1.5px}}
+
+/* photo layer: the plane "lands" and the boat settles on the water */
+.tr-section .tr-card.tr-air,.tr-section .tr-card.tr-sea{background-image:none!important;isolation:isolate;transition:transform .5s cubic-bezier(.2,.7,.2,1),box-shadow .5s ease,opacity .9s ease}
+.tr-section .tr-card::before{content:"";position:absolute;left:0;right:0;top:0;height:270px;z-index:-2;background-repeat:no-repeat;background-position:top center;background-size:max(100%,580px) auto;transform-origin:60% 40%;-webkit-mask-image:linear-gradient(180deg,#000 0,#000 52%,transparent 92%);mask-image:linear-gradient(180deg,#000 0,#000 52%,transparent 92%)}
+.tr-section .tr-card.tr-air::before{background-image:url(images/tr-plane.webp)}
+.tr-section .tr-card.tr-sea::before{background-image:url(images/tr-boat.webp)}
+.tr-section .tr-card::after{content:"";position:absolute;left:0;right:0;top:0;height:270px;z-index:-1;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,0) 0,rgba(255,255,255,0) 115px,rgba(255,255,255,.72) 195px,#fff 258px)}
+.tr-section .tr-card.reveal-in.tr-air::before{animation:trLand 2.4s cubic-bezier(.16,.84,.3,1) both,trDrift 14s ease-in-out 2.4s infinite alternate}
+.tr-section .tr-card.reveal-in.tr-sea::before{animation:trDock 2.4s cubic-bezier(.16,.84,.3,1) .15s both,trBob 5.5s ease-in-out 2.6s infinite}
+@keyframes trLand{0%{transform:translate(9%,-12%) scale(1.22);filter:blur(3px) saturate(1.2)}60%{filter:blur(0)}100%{transform:none;filter:none}}
+@keyframes trDock{0%{transform:translate(-8%,10%) scale(1.2);filter:blur(3px)}60%{filter:blur(0)}100%{transform:none;filter:none}}
+@keyframes trDrift{to{transform:scale(1.05) translate(-1.2%,.4%)}}
+@keyframes trBob{0%,100%{transform:translateY(0) rotate(0)}30%{transform:translateY(-4px) rotate(-.35deg)}65%{transform:translateY(3px) rotate(.3deg)}}
+.tr-section .tr-card:hover{transform:translateY(-6px);box-shadow:0 28px 60px rgba(18,61,42,.16)}
+.tr-section .tr-card.reveal-in .tr-icon{animation:trPop .7s cubic-bezier(.3,1.6,.5,1) .9s both}
+@keyframes trPop{0%{transform:scale(.4) rotate(-20deg);opacity:0}100%{transform:none;opacity:1}}
+
+/* schedule "publishes" like a departures board */
+.tr-section .tr-card .tr-sub{position:relative}
+.tr-section .tr-card h4.tr-sub:first-of-type::after{content:"";display:inline-block;width:8px;height:8px;margin-left:10px;border-radius:50%;background:#2fbf71;vertical-align:middle;box-shadow:0 0 0 0 rgba(47,191,113,.5);animation:trLive 2s ease-out infinite}
+@keyframes trLive{0%{box-shadow:0 0 0 0 rgba(47,191,113,.55)}100%{box-shadow:0 0 0 10px rgba(47,191,113,0)}}
+.tr-section .tr-card.reveal-in .tr-list li{animation:trRow .6s cubic-bezier(.2,.8,.2,1) both}
+.tr-section .tr-card.reveal-in .tr-list li>b{display:inline-block;transform-origin:50% 0;animation:trFlip .7s cubic-bezier(.3,1.4,.5,1) both;font-variant-numeric:tabular-nums}
+.tr-section .tr-card.reveal-in .tr-list li:nth-child(1),.tr-section .tr-card.reveal-in .tr-list li:nth-child(1)>b{animation-delay:.55s}
+.tr-section .tr-card.reveal-in .tr-list li:nth-child(1)>b{animation-delay:.8s}
+.tr-section .tr-card.reveal-in .tr-list li:nth-child(2){animation-delay:.65s}
+.tr-section .tr-card.reveal-in .tr-list li:nth-child(2)>b{animation-delay:.9s}
+.tr-section .tr-card.reveal-in .tr-list li:nth-child(3){animation-delay:.75s}
+.tr-section .tr-card.reveal-in .tr-list li:nth-child(3)>b{animation-delay:1s}
+.tr-section .tr-card.reveal-in .tr-list li:nth-child(4){animation-delay:.85s}
+.tr-section .tr-card.reveal-in .tr-list li:nth-child(4)>b{animation-delay:1.1s}
+.tr-section .tr-card.reveal-in .tr-list li:nth-child(n+5){animation-delay:.95s}
+.tr-section .tr-card.reveal-in .tr-list li:nth-child(n+5)>b{animation-delay:1.2s}
+@keyframes trRow{0%{opacity:0;transform:translateX(-14px)}100%{opacity:1;transform:none}}
+@keyframes trFlip{0%{opacity:0;transform:perspective(300px) rotateX(-90deg)}60%{opacity:1}100%{opacity:1;transform:none}}
+.tr-section .tr-list li{transition:background .25s ease}
+.tr-section .tr-list li:hover{background:linear-gradient(90deg,rgba(29,107,71,.06),rgba(29,107,71,0))}
+.tr-section .tr-day{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:rgba(29,107,71,.08)}
+@media (prefers-reduced-motion:reduce){.tr-section .tr-card::before,.tr-section .tr-card *,.tr-route *,.tr-route .tr-lane::before{animation:none!important}.tr-mover{left:calc(50% - 17px)!important}}
