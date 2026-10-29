@@ -671,3 +671,12 @@ body.editing .pp-grid>.media-item{height:300px}
 .pc-stripe{fill:none;stroke:#e0a95e;stroke-width:2;stroke-linecap:round}
 .pc-wake{fill:none;stroke:#fff;stroke-width:2.6;stroke-linecap:round;opacity:.9}
 @media (max-width:640px){.pc-mv g>*{transform:none}.pc-mv .pc-s{transform:scale(1.55)}}
+
+/* phone: keep chart markers compact so they don't crowd each other */
+@media (max-width:640px){.pc-mv .pc-s{transform:scale(1.3)}.pc-mv .pc-sp{transform:scale(1)}}
+/* phone: show the top photo as a clear band, text on a solid panel below it */
+@media (max-width:767px){
+  .page-hero:not([data-bg="full"]):not([data-bg="none"]):not([data-bg="strong"]){padding-top:290px}
+  .page-hero:not([data-bg="full"]):not([data-bg="none"]):not([data-bg="strong"]) .page-hero-img{height:264px!important;bottom:auto}
+  .page-hero:not([data-bg="full"]):not([data-bg="none"]):not([data-bg="strong"]) .page-hero-shade{background:linear-gradient(180deg,rgba(242,238,230,0) 0,rgba(242,238,230,0) 222px,rgba(242,238,230,1) 264px)!important}
+}
