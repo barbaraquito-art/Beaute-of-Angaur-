@@ -655,3 +655,11 @@ body.editing .pp-grid>.media-item{height:300px}
   .pc-mv .pc-plane{transform:rotate(90deg) scale(1.7)}
 }
 @media (prefers-reduced-motion:reduce){.pc-mv{display:none}.pc-searoute{animation:none}}
+
+/* transportation: real logos (PMA + Angaur State seal) */
+.tr-icon.tr-logo{background:#fff;padding:0;overflow:hidden;box-shadow:0 6px 18px rgba(8,38,58,.18),0 0 0 1px rgba(18,61,42,.1)}
+.tr-icon.tr-logo img{display:block;width:100%;height:100%;object-fit:contain}
+.tr-icon.tr-logo-pma{padding:3px}
+.tr-icon.tr-logo-seal{width:56px;height:56px;border-radius:50%;background:transparent;box-shadow:0 6px 18px rgba(8,38,58,.22)}
+.pc-logo-bg{fill:#fff;stroke:#c0267a;stroke-width:2;filter:drop-shadow(0 3px 5px rgba(8,38,58,.35))}
+.pc-seal-bg{fill:#fff;stroke:#1f6fb2;stroke-width:2;filter:drop-shadow(0 3px 5px rgba(8,38,58,.35))}
