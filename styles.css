@@ -663,3 +663,11 @@ body.editing .pp-grid>.media-item{height:300px}
 .tr-icon.tr-logo-seal{width:56px;height:56px;border-radius:50%;background:transparent;box-shadow:0 6px 18px rgba(8,38,58,.22)}
 .pc-logo-bg{fill:#fff;stroke:#c0267a;stroke-width:2;filter:drop-shadow(0 3px 5px rgba(8,38,58,.35))}
 .pc-seal-bg{fill:#fff;stroke:#1f6fb2;stroke-width:2;filter:drop-shadow(0 3px 5px rgba(8,38,58,.35))}
+
+/* transportation chart: aircraft + speedboat markers with logos */
+.pc-plane{fill:#0f2f45;stroke:#fff;stroke-width:1.6;stroke-linejoin:round;filter:drop-shadow(0 3px 4px rgba(8,38,58,.45))}
+.pc-hull{fill:#fff;stroke:#0b2a2c;stroke-width:1.6;stroke-linejoin:round;filter:drop-shadow(0 2px 3px rgba(8,38,58,.4))}
+.pc-cabin{fill:#1f6fb2}
+.pc-stripe{fill:none;stroke:#e0a95e;stroke-width:2;stroke-linecap:round}
+.pc-wake{fill:none;stroke:#fff;stroke-width:2.6;stroke-linecap:round;opacity:.9}
+@media (max-width:640px){.pc-mv g>*{transform:none}.pc-mv .pc-s{transform:scale(1.55)}}
