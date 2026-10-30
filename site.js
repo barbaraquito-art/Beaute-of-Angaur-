@@ -19,6 +19,17 @@
     }
   } catch (e) {}
 
+
+  /* ---------- footer credit (replaces the old Admin link; safe to run more than once) ---------- */
+  function setupCredit() {
+    document.querySelectorAll('#app footer p').forEach(function (p) {
+      if (!/All rights reserved/.test(p.textContent)) return;
+      var a = p.querySelector('a[href*="/admin"]');
+      if (a) { var sep = a.previousElementSibling; if (sep && sep.getAttribute('aria-hidden') === 'true') sep.remove(); a.remove(); }
+      if (!p.querySelector('.site-credit')) p.insertAdjacentHTML('beforeend', '<span aria-hidden="true" class="mx-2">\u00b7</span><span class="site-credit">Designed &amp; developed by <strong>BAQ</strong> for the Angaur State Tourism Project</span>');
+    });
+  }
+
   /* ---------- scroll reveal (same effect as the original) ---------- */
   function setupReveal() {
     var els = [].slice.call(document.querySelectorAll('.reveal:not(.reveal-in)'));
@@ -855,7 +866,7 @@
       })();
     }).catch(function (err) { if (err) fail(err); });
   }
-  setupReveal(); setupMenu(); setupPOI(); setupForms();
+  setupCredit(); setupReveal(); setupMenu(); setupPOI(); setupForms();
   renderAllVideos(); refreshGrids();
   if (isOwner && params.has('edit')) setEditing(true);
 })();
