@@ -129,6 +129,33 @@
     if (v.type === 'file') { el = document.createElement('video'); el.controls = true; el.playsInline = true; el.preload = 'metadata'; }
     else { el = document.createElement('iframe'); el.allow = 'autoplay; encrypted-media; fullscreen; picture-in-picture'; el.allowFullscreen = true; el.loading = 'lazy'; el.title = (fig.querySelector('figcaption') || {}).textContent || 'Video'; }
     el.src = v.src; box.appendChild(el);
+    var tall = fig.getAttribute('data-video-phone');
+    if (v.type === 'file' && tall && !document.body.classList.contains('editing') && window.matchMedia('(max-width: 767px)').matches) phoneVideo(fig, box, el, v.src, tall);
+  }
+  /* phones: the card shows the wide clip; tapping plays the tall phone version full screen */
+  function phoneVideo(fig, box, el, wide, tall) {
+    el.controls = false; el.muted = true; el.loop = true; el.autoplay = true; el.setAttribute('muted', '');
+    var p = el.play(); if (p && p.catch) p.catch(function () {});
+    var btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'mv-play'; btn.setAttribute('aria-label', 'Play video full screen');
+    btn.innerHTML = '<span aria-hidden="true"></span>';
+    box.appendChild(btn);
+    btn.addEventListener('click', function () {
+      btn.remove();
+      el.loop = false; el.muted = false; el.removeAttribute('muted'); el.controls = true;
+      el.src = tall; el.style.objectFit = 'contain';
+      var q = el.play(); if (q && q.catch) q.catch(function () {});
+      try {
+        if (el.requestFullscreen) el.requestFullscreen().catch(function () {});
+        else if (el.webkitEnterFullscreen) el.webkitEnterFullscreen();
+      } catch (e) {}
+    });
+    function back() {
+      if (document.fullscreenElement === el) return;
+      el.pause(); el.style.objectFit = ''; renderVideo(fig);
+    }
+    el.addEventListener('webkitendfullscreen', back);
+    document.addEventListener('fullscreenchange', function f() { if (!document.fullscreenElement) { document.removeEventListener('fullscreenchange', f); if (el.isConnected && el.getAttribute('src') === tall) back(); } });
   }
   function refreshGrids() {
     document.querySelectorAll('#app [data-media-grid]').forEach(function (g) {
@@ -234,7 +261,7 @@
         mTarget.src = val; mTarget.removeAttribute('srcset'); mTarget.alt = mAlt.value;
         if (mTarget.classList.contains('page-hero-img')) { var hs = mTarget.closest('.page-hero'), cr = hs && hs.querySelector('.page-hero-credit'); if (cr) cr.remove(); }
       }
-      else { mTarget.setAttribute('data-video', val); renderVideo(mTarget); }
+      else { mTarget.setAttribute('data-video', val); mTarget.removeAttribute('data-video-phone'); renderVideo(mTarget); }
       if (mDone) mDone(true);
       closeModal(); refreshGrids(); autosave(); placeTools();
     });
