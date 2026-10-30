@@ -691,3 +691,7 @@ body.editing .pp-grid>.media-item{height:300px}
 .pc-mm{display:none}
 @media (max-width:640px){.pc-mv{display:none}.pc-mm{display:inline}}
 @media (prefers-reduced-motion:reduce){.pc-mm{display:none}}
+/* Our People: one photo fills the full width, two photos share it */
+.pp-grid>.media-item:only-child{flex:1 1 100%;height:clamp(260px,56vw,600px)}
+@media (min-width:640px){.pp-grid>.media-item:first-child:nth-last-child(2),.pp-grid>.media-item:first-child:nth-last-child(2)~.media-item{flex:1 1 calc(50% - 9px);height:clamp(300px,36vw,460px)}}
+body.editing .pp-grid>.media-item:only-child{height:clamp(260px,46vw,520px)}
