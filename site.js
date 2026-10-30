@@ -26,7 +26,10 @@
       if (!/All rights reserved/.test(p.textContent)) return;
       var a = p.querySelector('a[href*="/admin"]');
       if (a) { var sep = a.previousElementSibling; if (sep && sep.getAttribute('aria-hidden') === 'true') sep.remove(); a.remove(); }
-      if (!p.querySelector('.site-credit')) p.insertAdjacentHTML('beforeend', '<span aria-hidden="true" class="mx-2">\u00b7</span><span class="site-credit">Designed &amp; developed by <strong>BAQ</strong> for the Angaur State Tourism Project</span>');
+      var CREDIT = 'Developed by BAQ, Angaur State Tourism Project';
+      var c = p.querySelector('.site-credit');
+      if (c) { if (c.textContent !== CREDIT) c.textContent = CREDIT; }
+      else p.insertAdjacentHTML('beforeend', '<span aria-hidden="true" class="mx-2">\u00b7</span><span class="site-credit">' + CREDIT + '</span>');
     });
   }
 
