@@ -8,6 +8,9 @@
   // only for the aerial photo the mask was traced from (an editor may swap the picture)
   if (!/13b5bb981b59fb5a\.jpg/.test(img.getAttribute('src') || '')) return;
   if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  // phones and small tablets show the still photo: their GPUs often lack full float
+  // precision, which breaks the drifting clouds into visible square blocks
+  if (window.matchMedia && matchMedia('(max-width: 1023px), (pointer: coarse)').matches) return;
 
   // Island outline (with beach and reef margin) in 768x512 image space.
   var ISLAND = [[122,252],[130,236],[150,214],[165,196],[188,184],[240,179],[285,176],[345,177],[372,190],[400,203],[470,208],[560,210],[640,214],[664,222],[668,246],[690,268],[720,282],[752,292],[760,302],[740,312],[668,310],[600,304],[566,312],[548,328],[470,336],[382,336],[346,352],[334,370],[270,374],[198,366],[162,352],[156,322],[146,292],[128,272]];
@@ -96,6 +99,8 @@
     cv.setAttribute('aria-hidden', 'true');
     var gl = cv.getContext('webgl', { alpha: false, antialias: false, premultipliedAlpha: false, preserveDrawingBuffer: false });
     if (!gl) return;
+    var hp = gl.getShaderPrecisionFormat && gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_FLOAT);
+    if (!hp || hp.precision < 23) return;
     function sh(type, src) { var s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return gl.getShaderParameter(s, gl.COMPILE_STATUS) ? s : null; }
     var vs = sh(gl.VERTEX_SHADER, VS), fs = sh(gl.FRAGMENT_SHADER, FS);
     if (!vs || !fs) return;
