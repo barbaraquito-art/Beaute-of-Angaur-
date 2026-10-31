@@ -143,6 +143,12 @@
     if (v.type === 'file') { el = document.createElement('video'); el.controls = true; el.playsInline = true; el.preload = 'metadata'; }
     else { el = document.createElement('iframe'); el.allow = 'autoplay; encrypted-media; fullscreen; picture-in-picture'; el.allowFullscreen = true; el.loading = 'lazy'; el.title = (fig.querySelector('figcaption') || {}).textContent || 'Video'; }
     el.src = v.src; box.appendChild(el);
+    if (v.type === 'file' && fig.hasAttribute('data-video-silent')) {
+      /* highlight clips: silent, looping, no sound controls */
+      el.controls = false; el.muted = true; el.defaultMuted = true; el.setAttribute('muted', '');
+      el.loop = true; el.autoplay = true; el.setAttribute('playsinline', ''); el.preload = 'auto';
+      var pl = el.play(); if (pl && pl.catch) pl.catch(function () {});
+    }
     var tall = fig.getAttribute('data-video-phone');
     if (v.type === 'file' && tall && !document.body.classList.contains('editing') && window.matchMedia('(max-width: 767px)').matches) phoneVideo(fig, box, el, v.src, tall);
   }
