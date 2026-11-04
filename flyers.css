@@ -1,0 +1,85 @@
+/* Discover Angaur — flyer showcase (homepage). Self-contained: every class is prefixed afs- */
+.afs{--afs-navy:#0a2342;--afs-navy2:#0c2c4f;--afs-gold:#c9a45c;--afs-gold2:#a9864a;--afs-cream:#f6f1e7;--afs-ink:#0b2240;--afs-body:#4f5d6b;
+  position:relative;background:radial-gradient(120% 80% at 50% 0%,#fbf8f1 0%,var(--afs-cream) 55%,#efe7d8 100%);padding:72px 0 80px;overflow:hidden;color:var(--afs-ink)}
+.afs *{box-sizing:border-box}
+.afs-wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+.afs-head{text-align:center;max-width:640px;margin:0 auto}
+.afs-eyebrow{display:inline-flex;align-items:center;gap:12px;font:600 11px/1 "Plus Jakarta Sans",system-ui,sans-serif;letter-spacing:.32em;text-transform:uppercase;color:var(--afs-gold2);margin:0}
+.afs-eyebrow:before,.afs-eyebrow:after{content:"";width:28px;height:1px;background:var(--afs-gold)}
+.afs-title{font:800 clamp(30px,5.2vw,52px)/1.02 Outfit,system-ui,sans-serif;letter-spacing:.06em;margin:18px 0 0;color:var(--afs-navy)}
+.afs-sub{font:italic 400 clamp(18px,2.3vw,23px)/1.3 "DM Serif Display",Georgia,serif;color:var(--afs-gold2);margin:12px 0 0}
+.afs-desc{font:400 15px/1.75 "Plus Jakarta Sans",system-ui,sans-serif;color:var(--afs-body);margin:16px auto 0;max-width:540px}
+
+/* Static gallery: shown without JavaScript and for reduced motion */
+.afs-static{list-style:none;margin:44px auto 0;padding:0;display:flex;justify-content:center;gap:clamp(16px,4vw,40px);flex-wrap:wrap}
+.afs-static li{margin:0}
+.afs-static a,.afs-static button{display:block;width:clamp(140px,26vw,230px);padding:0;border:0;background:none;cursor:zoom-in;border-radius:6px;text-align:center;color:inherit}
+.afs-static img{display:block;width:100%;height:auto;border-radius:4px;box-shadow:0 2px 4px rgba(10,35,66,.12),0 18px 40px rgba(10,35,66,.22)}
+.afs-static span{display:block;margin-top:12px;font:600 11px/1 Outfit,system-ui,sans-serif;letter-spacing:.24em;text-transform:uppercase;color:var(--afs-gold2)}
+.afs.afs-on .afs-static{display:none}
+
+/* 3D table */
+.afs-stage{display:none;position:relative;margin:20px auto 0;perspective:1500px;perspective-origin:50% 30%;height:var(--afs-h,560px)}
+.afs.afs-on .afs-stage{display:block}
+.afs-table{position:absolute;inset:0;transform-style:preserve-3d;transform:rotateX(14deg)}
+.afs-table:before{content:"";position:absolute;left:8%;right:8%;top:14%;bottom:4%;border-radius:50%;background:radial-gradient(closest-side,rgba(10,35,66,.10),rgba(10,35,66,0));transform:translateZ(-1px);pointer-events:none}
+.afs-card{--x:0px;--y:0px;--r0:0deg;--z0:0px;--zz:var(--z0);--rr:var(--r0);--s:1;position:absolute;left:50%;top:50%;width:var(--afs-w,190px);aspect-ratio:3.67/8.5;padding:0;border:0;margin:0;background:#0a2342;border-radius:3px;cursor:pointer;
+  transform:translate3d(calc(-50% + var(--x)),calc(-50% + var(--y)),var(--zz)) rotate(var(--rr)) scale(var(--s));
+  transition:transform .55s cubic-bezier(.2,.8,.2,1),box-shadow .55s cubic-bezier(.2,.8,.2,1);
+  box-shadow:0 1px 1px rgba(10,35,66,.18),0 6px 14px rgba(10,35,66,.16),0 22px 44px -10px rgba(10,35,66,.28);will-change:transform;outline:none;-webkit-tap-highlight-color:transparent}
+.afs-card img{display:block;width:100%;height:100%;object-fit:cover;border-radius:3px;pointer-events:none;user-select:none;-webkit-user-drag:none}
+.afs-card:after{content:"";position:absolute;inset:0;border-radius:3px;background:linear-gradient(135deg,rgba(255,255,255,.16),rgba(255,255,255,0) 38%);pointer-events:none}
+.afs-card.is-lift,.afs-card:focus-visible{--zz:110px;--s:1.07;--rr:calc(var(--r0) * .35);box-shadow:0 2px 3px rgba(10,35,66,.16),0 18px 34px rgba(10,35,66,.22),0 48px 80px -16px rgba(10,35,66,.42)}
+.afs-card:focus-visible{box-shadow:0 0 0 3px #fff,0 0 0 5px var(--afs-gold),0 48px 80px -16px rgba(10,35,66,.42)}
+.afs-hint{display:none;text-align:center;margin:6px 0 0;font:500 12px/1.4 "Plus Jakarta Sans",system-ui,sans-serif;color:#7b8794;letter-spacing:.02em}
+.afs.afs-on .afs-hint{display:block}
+
+.afs-actions{text-align:center;margin-top:30px}
+.afs-btn{display:inline-flex;align-items:center;gap:10px;border:0;cursor:pointer;background:var(--afs-navy);color:#fff;font:600 14px/1 Outfit,system-ui,sans-serif;letter-spacing:.08em;padding:16px 28px;border-radius:999px;box-shadow:0 10px 24px -8px rgba(10,35,66,.5);transition:transform .3s,box-shadow .3s,background .3s}
+.afs-btn:after{content:"";width:16px;height:1px;background:var(--afs-gold);transition:width .3s}
+.afs-btn:hover{background:var(--afs-navy2);transform:translateY(-2px);box-shadow:0 16px 30px -10px rgba(10,35,66,.55)}
+.afs-btn:hover:after{width:24px}
+.afs-btn:focus-visible{outline:2px solid var(--afs-gold);outline-offset:3px}
+
+/* Lightbox */
+.afs-modal{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(5,16,31,.88);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);opacity:0;transition:opacity .3s}
+.afs-modal[hidden]{display:none}
+.afs-modal.is-open{opacity:1}
+.afs-dialog{position:relative;width:100%;max-width:1000px;max-height:100%;display:flex;flex-direction:column;align-items:center;outline:none}
+.afs-close{position:fixed;top:14px;right:14px;width:46px;height:46px;border-radius:50%;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.08);color:#fff;font:300 26px/1 system-ui,sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2}
+.afs-close:hover,.afs-close:focus-visible{background:rgba(255,255,255,.18);outline:none;border-color:var(--afs-gold)}
+.afs-view{display:flex;align-items:center;gap:14px;max-width:100%}
+.afs-big{display:block;height:min(80vh,1100px);width:auto;max-width:calc(100vw - 140px);aspect-ratio:3.67/8.5;object-fit:contain;border-radius:4px;box-shadow:0 30px 80px rgba(0,0,0,.5);background:#0a2342;transform:scale(.97);opacity:0;transition:transform .35s cubic-bezier(.2,.8,.2,1),opacity .35s}
+.afs-modal.is-open .afs-big.is-ready{transform:none;opacity:1}
+.afs-nav{flex:none;width:46px;height:46px;border-radius:50%;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.08);color:#fff;font:400 22px/1 system-ui,sans-serif;cursor:pointer}
+.afs-nav:hover,.afs-nav:focus-visible{background:rgba(255,255,255,.18);outline:none;border-color:var(--afs-gold)}
+.afs-meta{margin-top:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center}
+.afs-cap{font:600 12px/1 Outfit,system-ui,sans-serif;letter-spacing:.22em;text-transform:uppercase;color:#e3c98f;margin-right:6px}
+.afs-tab{border:1px solid rgba(255,255,255,.25);background:transparent;color:#fff;font:500 13px/1 "Plus Jakarta Sans",system-ui,sans-serif;padding:9px 16px;border-radius:999px;cursor:pointer}
+.afs-tab[aria-pressed="true"]{background:#fff;color:var(--afs-navy);border-color:#fff}
+.afs-tab:focus-visible{outline:2px solid var(--afs-gold);outline-offset:2px}
+.afs-grid{display:none;gap:clamp(14px,3vw,36px);justify-content:center;align-items:flex-start;flex-wrap:wrap;max-height:calc(100vh - 60px);overflow:auto;padding:40px 6px 10px}
+.afs-dialog.is-grid .afs-grid{display:flex}
+.afs-dialog.is-grid .afs-view,.afs-dialog.is-grid .afs-meta{display:none}
+.afs-gtitle{width:100%;text-align:center;font:800 22px/1.1 Outfit,system-ui,sans-serif;letter-spacing:.08em;color:#fff;margin:0 0 4px}
+.afs-gtitle small{display:block;font:italic 400 15px/1.4 "DM Serif Display",Georgia,serif;letter-spacing:0;color:#e3c98f;margin-top:8px}
+.afs-gitem{border:0;padding:0;background:none;cursor:zoom-in;width:clamp(130px,30vw,260px);color:#fff;text-align:center}
+.afs-gitem img{display:block;width:100%;height:auto;border-radius:4px;box-shadow:0 20px 50px rgba(0,0,0,.45);transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+.afs-gitem:hover img,.afs-gitem:focus-visible img{transform:translateY(-6px)}
+.afs-gitem:focus-visible{outline:none}
+.afs-gitem:focus-visible img{box-shadow:0 0 0 3px var(--afs-gold),0 20px 50px rgba(0,0,0,.45)}
+.afs-gitem span{display:block;margin-top:12px;font:600 11px/1 Outfit,system-ui,sans-serif;letter-spacing:.24em;text-transform:uppercase;color:#e3c98f}
+html.afs-lock,html.afs-lock body{overflow:hidden}
+
+@media (max-width:640px){
+  .afs{padding:64px 0 72px}
+  .afs-desc{font-size:14px}
+  .afs-view{gap:0}
+  .afs-nav{position:fixed;bottom:18px;z-index:2}
+  .afs-nav.prev{left:18px}.afs-nav.next{right:18px}
+  .afs-big{height:min(72vh,900px);max-width:calc(100vw - 32px)}
+  .afs-meta{margin-bottom:56px}
+}
+@media (prefers-reduced-motion:reduce){
+  .afs-card,.afs-big,.afs-modal,.afs-btn,.afs-gitem img{transition:none!important}
+}
